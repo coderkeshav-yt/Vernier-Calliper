@@ -576,31 +576,19 @@ function togglePartLabels() {
 function updatePartLabelPositions(translateX) {
   if (!isLabelsVisible) return;
 
-  // All positions are in SVG absolute coordinates (viewBox space)
-  // translateX = currentReading * SCALE_FACTOR
-
-  // Movable jaw face is at SVG x = ORIGIN_X + translateX
+  // jawFaceX = absolute SVG x of the movable jaw contact face
   const jawFaceX = ORIGIN_X + translateX;
 
-  // Movable Internal Jaw: point to right side of moving jaw spine
-  setLabelPos('lbl_movInternal', jawFaceX + 25, -35);
-
-  // Movable External Jaw: same x, lower y
+  // Movable External Jaw (lower) — tracks the sliding lower jaw body
   setLabelPos('lbl_movExternal', jawFaceX + 35, 210);
 
-  // Locking Screw: at translate(310,2) inside slider = SVG x = jawFaceX + 310, y = 2
+  // Locking Screw — at translate(310,2) inside slider local = jawFaceX + 310 absolute
   setLabelPos('lbl_lockScrew', jawFaceX + 310, 2);
 
-  // Vernier Scale: center of vernier plate at translateX + 310, y = 100
+  // Vernier Scale — center of vernier plate relative to slider
   setLabelPos('lbl_vernierScale', jawFaceX + 180, 100);
 
-  // Depth Rod Tip: always at SVG x = ORIGIN_X + 1380 (beam end), y = 68
-  // But depth rod tip x1=1380 in sliderGroup local = 1380 + translateX in SVG abs
-  // However the actual blade tip always stays at global x=1380 (end of beam).
-  // It protrudes from slider end; in the current design the tip marker is at local x=1380
-  // so in SVG absolute: ORIGIN_X + translateX + 1380 — that's off screen.
-  // Actually depthRodTip is at x1=1380 local in slider, but beam end is fixed at x=1380 SVG.
-  // The rod goes from the slider at x=500 local backward; its width is managed. Tip is at 1380 SVG.
+  // Depth Rod tip — always at x=1380 in SVG (right end of main beam, fixed)
   setLabelPos('lbl_depthRod', 1380, 68);
 }
 
