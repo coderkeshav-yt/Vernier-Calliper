@@ -751,6 +751,13 @@ main {
   border: 1px solid #fbcfe8;
 }
 
+.specimen-type-pill.custom-pill {
+  background: #e0f2fe;
+  color: #0369a1;
+  border: 1px solid #7dd3fc;
+  font-weight: 700;
+}
+
 .specimen-card-desc {
   font-size: 0.68rem;
   color: var(--text-muted);
@@ -762,26 +769,265 @@ main {
   gap: 6px;
 }
 
-/* Custom Specimen Input Box */
-.custom-specimen-bar {
-  background: #f8fafc;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px 12px;
+/* Header GitHub Link Button */
+.btn-github-link {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.btn-github-link:hover {
+  background: #0f172a;
+  color: #ffffff;
+  border-color: #0f172a;
+}
+
+/* ====================================================
+   ADVANCED INTERACTIVE CUSTOM SPECIMEN STUDIO
+   ==================================================== */
+.custom-specimen-studio-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f8fafc 100%);
+  border: 1.5px solid #bae6fd;
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(2, 132, 199, 0.08);
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.custom-studio-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #e0f2fe;
+}
+
+.studio-header-title {
   display: flex;
   align-items: center;
   gap: 10px;
-  font-size: 0.8rem;
 }
 
-.custom-specimen-bar input {
-  width: 80px;
-  padding: 4px 8px;
+.studio-badge-icon {
+  width: 34px;
+  height: 34px;
+  background: #e0f2fe;
+  color: var(--accent-blue);
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.studio-header-title h4 {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.studio-header-title p {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 2px;
+}
+
+.studio-body-grid {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 18px;
+  align-items: start;
+}
+
+.studio-control-label {
+  display: block;
+  font-size: 0.73rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--text-muted);
+  margin-bottom: 6px;
+}
+
+.shape-picker-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+}
+
+.shape-btn {
+  background: #ffffff;
+  border: 1.5px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-family: var(--font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+  transition: all 0.15s ease;
+}
+
+.shape-btn:hover {
+  background: #f0f9ff;
+  border-color: #7dd3fc;
+  color: var(--accent-blue);
+}
+
+.shape-btn.active {
+  background: #e0f2fe;
+  border-color: var(--accent-blue);
+  color: var(--accent-blue);
+  box-shadow: 0 0 0 1px var(--accent-blue);
+}
+
+.studio-switch {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 3px;
+  background: #f1f5f9;
+  padding: 4px;
+  border-radius: 8px;
+}
+
+.studio-switch .segmented-switch-btn {
+  width: 100%;
+  text-align: left;
+  padding: 6px 10px;
+  font-size: 0.74rem;
+  font-weight: 600;
+}
+
+.studio-inputs-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px;
+}
+
+.studio-dim-row {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.dim-label-group {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.dim-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.dim-hint {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+.dim-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.dim-range-slider {
+  flex: 1;
+  height: 6px;
+  border-radius: 3px;
+  background: #e2e8f0;
+  outline: none;
+  -webkit-appearance: none;
+  cursor: pointer;
+}
+
+.dim-range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent-blue);
+  cursor: pointer;
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+  transition: transform 0.1s ease;
+}
+
+.dim-range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.dim-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #f8fafc;
   border: 1px solid var(--border-color);
   border-radius: 6px;
+  padding: 3px 6px;
+}
+
+.dim-num-input {
+  width: 62px;
+  border: none;
+  background: transparent;
   font-family: var(--font-mono);
-  font-size: 0.85rem;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  text-align: right;
+  outline: none;
+}
+
+.dim-unit {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
   font-weight: 600;
+}
+
+.dim-presets-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-color);
+}
+
+.preset-chip {
+  background: #f1f5f9;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  font-family: var(--font-mono);
+}
+
+.preset-chip:hover {
+  background: #e0f2fe;
+  border-color: #7dd3fc;
+  color: var(--accent-blue);
 }
 
 /* Diameter & Volume Calculation Lab Panel */
@@ -1221,6 +1467,115 @@ main {
 }
 
 /* ====================================================
+   APP FOOTER & ATTRIBUTION
+   ==================================================== */
+.app-footer {
+  background: #ffffff;
+  border-top: 1px solid var(--border-color);
+  margin-top: auto;
+  padding: 16px 24px;
+  box-shadow: 0 -1px 3px rgba(0,0,0,0.03);
+}
+
+.footer-inner {
+  max-width: 1440px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.footer-brand-badge {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.footer-brand-badge svg {
+  color: var(--accent-blue);
+}
+
+.footer-tagline {
+  font-size: 0.74rem;
+  color: var(--text-muted);
+}
+
+.footer-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.footer-author-credit {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04);
+}
+
+.footer-author-credit strong {
+  color: var(--text-primary);
+}
+
+.heart-pulse {
+  display: inline-block;
+  animation: heartBeat 1.4s ease infinite;
+  transform-origin: center;
+}
+
+@keyframes heartBeat {
+  0% { transform: scale(1); }
+  14% { transform: scale(1.25); }
+  28% { transform: scale(1); }
+  42% { transform: scale(1.25); }
+  70% { transform: scale(1); }
+}
+
+.footer-right {
+  display: flex;
+  align-items: center;
+}
+
+.footer-github-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: #0f172a;
+  color: #ffffff;
+  padding: 7px 14px;
+  border-radius: 8px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.footer-github-btn:hover {
+  background: #1e293b;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+/* ====================================================
    COMPREHENSIVE RESPONSIVE DESIGN (MOBILE & TABLET)
    ==================================================== */
 
@@ -1236,6 +1591,9 @@ main {
     grid-template-columns: 1fr;
   }
   .calc-grid-layouts {
+    grid-template-columns: 1fr;
+  }
+  .studio-body-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -1261,6 +1619,7 @@ main {
   }
   .header-actions {
     justify-content: center;
+    flex-wrap: wrap;
   }
   .workbench-top-bar {
     flex-direction: column;
@@ -1298,6 +1657,22 @@ main {
   .calc-results-grid {
     grid-template-columns: 1fr;
   }
+  .footer-inner {
+    flex-direction: column;
+    text-align: center;
+    gap: 12px;
+  }
+  .footer-left {
+    align-items: center;
+  }
+  .footer-right {
+    justify-content: center;
+    width: 100%;
+  }
+  .footer-github-btn {
+    width: 100%;
+    justify-content: center;
+  }
 }
 
 @media (max-width: 480px) {
@@ -1310,6 +1685,9 @@ main {
     gap: 6px;
   }
   .specimens-grid {
+    grid-template-columns: 1fr;
+  }
+  .shape-picker-grid {
     grid-template-columns: 1fr;
   }
 }

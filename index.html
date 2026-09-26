@@ -46,6 +46,10 @@
 
     <!-- Header Action Buttons -->
     <div class="header-actions">
+      <a href="https://github.com/coderkeshav-yt/Vernier-Calliper.git" target="_blank" rel="noopener noreferrer" class="btn-pill btn-github-link" title="View Source on GitHub">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+        <span>GitHub</span>
+      </a>
       <button class="btn-pill" id="btnToggleLabels" onclick="togglePartLabels()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
         Part Labels
@@ -632,14 +636,152 @@
           <span class="specimen-type-pill mystery">Blind Test</span>
           <div class="specimen-card-desc">Measure and Calculate!</div>
         </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('custom')" id="card_custom">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <rect x="8" y="12" width="34" height="26" rx="4" fill="url(#satinSteelBeam)" stroke="#0284c7" stroke-width="1.8" stroke-dasharray="3,2"/>
+            <path d="M 17,25 L 33,25 M 20,20 L 15,25 L 20,30 M 30,20 L 35,25 L 30,30" stroke="#0284c7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="specimen-card-title">Custom Specimen</div>
+          <span class="specimen-type-pill custom-pill">Fully Customizable</span>
+          <div class="specimen-card-desc" id="desc_custom">L: 55.00 | OD: 25.00 | ID: 16.00 mm</div>
+        </div>
       </div>
 
-      <!-- Custom Size Bar -->
-      <div class="custom-specimen-bar">
-        <span><strong>Set Custom Specimen Dimension:</strong></span>
-        <input type="number" id="customDiameterInput" min="1" max="140" step="0.01" value="25.00" onchange="applyCustomSpecimenSize(this.value)">
-        <span>mm</span>
-        <button class="btn-pill" onclick="applyCustomSpecimenSize(document.getElementById('customDiameterInput').value)">Apply Custom Size</button>
+      <!-- Advanced Interactive Custom Specimen Studio -->
+      <div class="custom-specimen-studio-card" id="customSpecimenStudio">
+        <div class="custom-studio-header">
+          <div class="studio-header-title">
+            <div class="studio-badge-icon">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg>
+            </div>
+            <div>
+              <h4>Custom Specimen Studio & Dimension Controller</h4>
+              <p>Customize length, outer diameter, internal bore, and depth. Select measurement mode to position jaws accurately.</p>
+            </div>
+          </div>
+
+          <div class="studio-header-actions">
+            <button class="btn-action-primary" onclick="autoClampToSpecimen()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 14h6m-6 4h6m4-14 4 4m0 0 4-4m-4 4v12"/></svg>
+              Auto-Clamp Jaws to Custom Specimen
+            </button>
+          </div>
+        </div>
+
+        <div class="studio-body-grid">
+          <!-- Shape Selection & Material -->
+          <div class="studio-shape-col">
+            <label class="studio-control-label">Specimen Geometry / Shape:</label>
+            <div class="shape-picker-grid">
+              <button class="shape-btn active" id="shapeBtn_cylinder" onclick="setCustomSpecimenShape('cylinder')" title="Solid Cylinder / Bar">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"/></svg>
+                <span>Cylinder / Bar</span>
+              </button>
+              <button class="shape-btn" id="shapeBtn_pipe" onclick="setCustomSpecimenShape('pipe')" title="Hollow Pipe / Tube">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M21 5v14c0 1.66-4 3-9 3s-9-1.34-9-3V5"/><ellipse cx="12" cy="5" rx="5" ry="1.6"/><path d="M17 5v14"/></svg>
+                <span>Hollow Pipe</span>
+              </button>
+              <button class="shape-btn" id="shapeBtn_block" onclick="setCustomSpecimenShape('block')" title="Solid Rectangular Block">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                <span>Solid Block</span>
+              </button>
+              <button class="shape-btn" id="shapeBtn_sphere" onclick="setCustomSpecimenShape('sphere')" title="Solid Sphere">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><ellipse cx="12" cy="12" rx="9" ry="3.5"/></svg>
+                <span>Solid Sphere</span>
+              </button>
+              <button class="shape-btn" id="shapeBtn_step" onclick="setCustomSpecimenShape('step')" title="Stepped Hole Block">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 20V8h6v6h8v6z"/></svg>
+                <span>Step / Well</span>
+              </button>
+            </div>
+
+            <!-- Active Measurement Target Selector -->
+            <div style="margin-top:12px;">
+              <label class="studio-control-label">Active Measuring Mode (Which dimension to clamp):</label>
+              <div class="segmented-switch studio-switch" id="customTargetSwitch">
+                <button class="segmented-switch-btn active" id="btnCustomMode_length" onclick="setCustomActiveMode('length')">📏 Length (L)</button>
+                <button class="segmented-switch-btn" id="btnCustomMode_od" onclick="setCustomActiveMode('od')">📐 Outer Diameter (OD)</button>
+                <button class="segmented-switch-btn" id="btnCustomMode_id" onclick="setCustomActiveMode('id')">🔘 Inner Bore (ID)</button>
+                <button class="segmented-switch-btn" id="btnCustomMode_depth" onclick="setCustomActiveMode('depth')">🔻 Depth (H)</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Dimension Sliders & Precise Inputs -->
+          <div class="studio-inputs-col">
+            
+            <!-- Length / Height (L) Slider & Input -->
+            <div class="studio-dim-row" id="rowCustomLength">
+              <div class="dim-label-group">
+                <span class="dim-title">Specimen Length / Height (L):</span>
+                <span class="dim-hint">Measured using lower external jaws</span>
+              </div>
+              <div class="dim-controls">
+                <input type="range" class="dim-range-slider" id="sliderCustomLength" min="2" max="140" step="0.05" value="55.00" oninput="onCustomDimSliderInput('length', this.value)">
+                <div class="dim-input-wrap">
+                  <input type="number" class="dim-num-input" id="numCustomLength" min="1" max="145" step="0.01" value="55.00" onchange="onCustomDimNumChange('length', this.value)">
+                  <span class="dim-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Outer Diameter / Width (OD) Slider & Input -->
+            <div class="studio-dim-row" id="rowCustomOD">
+              <div class="dim-label-group">
+                <span class="dim-title">Outer Diameter / Width (OD):</span>
+                <span class="dim-hint">Measured across exterior thickness</span>
+              </div>
+              <div class="dim-controls">
+                <input type="range" class="dim-range-slider" id="sliderCustomOD" min="2" max="140" step="0.05" value="25.00" oninput="onCustomDimSliderInput('od', this.value)">
+                <div class="dim-input-wrap">
+                  <input type="number" class="dim-num-input" id="numCustomOD" min="1" max="145" step="0.01" value="25.00" onchange="onCustomDimNumChange('od', this.value)">
+                  <span class="dim-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Internal Bore Diameter (ID) Slider & Input -->
+            <div class="studio-dim-row" id="rowCustomID">
+              <div class="dim-label-group">
+                <span class="dim-title">Internal Hole / Bore Diameter (ID):</span>
+                <span class="dim-hint">Measured with upper internal jaws</span>
+              </div>
+              <div class="dim-controls">
+                <input type="range" class="dim-range-slider" id="sliderCustomID" min="1" max="130" step="0.05" value="16.00" oninput="onCustomDimSliderInput('id', this.value)">
+                <div class="dim-input-wrap">
+                  <input type="number" class="dim-num-input" id="numCustomID" min="1" max="135" step="0.01" value="16.00" onchange="onCustomDimNumChange('id', this.value)">
+                  <span class="dim-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Depth / Hole Depth Slider & Input -->
+            <div class="studio-dim-row" id="rowCustomDepth">
+              <div class="dim-label-group">
+                <span class="dim-title">Cavity / Well Depth:</span>
+                <span class="dim-hint">Measured with extending depth rod</span>
+              </div>
+              <div class="dim-controls">
+                <input type="range" class="dim-range-slider" id="sliderCustomDepth" min="1" max="130" step="0.05" value="32.00" oninput="onCustomDimSliderInput('depth', this.value)">
+                <div class="dim-input-wrap">
+                  <input type="number" class="dim-num-input" id="numCustomDepth" min="1" max="135" step="0.01" value="32.00" onchange="onCustomDimNumChange('depth', this.value)">
+                  <span class="dim-unit">mm</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Dimension Presets -->
+            <div class="dim-presets-row">
+              <span style="font-size:0.72rem;font-weight:700;color:var(--text-muted);">Quick Presets:</span>
+              <button class="preset-chip" onclick="applyQuickPreset(12.50, 24.00, 8.00, 18.00)">Small (12.5 mm)</button>
+              <button class="preset-chip" onclick="applyQuickPreset(28.75, 45.00, 15.00, 30.00)">Medium (28.75 mm)</button>
+              <button class="preset-chip" onclick="applyQuickPreset(48.60, 75.00, 26.00, 42.00)">Standard (48.60 mm)</button>
+              <button class="preset-chip" onclick="applyQuickPreset(74.20, 95.00, 40.00, 60.00)">Large (74.20 mm)</button>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
 
@@ -883,6 +1025,32 @@
       </div>
     </div>
   </div>
+
+  <!-- Footer with Author Credits & GitHub Link -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="footer-left">
+        <div class="footer-brand-badge">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.3 8.7 8.7 21.3c-1 1-2.5 1-3.4 0l-2.6-2.6c-1-1-1-2.5 0-3.4L15.3 2.7c1-1 2.5-1 3.4 0l2.6 2.6c1 1 1 2.5 0 3.4Z"/><path d="m14.5 3.5 6 6"/><path d="m9 9 2 2"/><path d="m6 12 2 2"/><path d="m3 15 2 2"/></svg>
+          <span>Vernier Caliper Virtual Lab</span>
+        </div>
+        <span class="footer-tagline">Physics Laboratory Metrology & Interactive Simulation</span>
+      </div>
+
+      <div class="footer-center">
+        <div class="footer-author-credit">
+          Made with <span class="heart-pulse">❤️</span> by <strong>Keshav Singh</strong>
+        </div>
+      </div>
+
+      <div class="footer-right">
+        <a href="https://github.com/coderkeshav-yt/Vernier-Calliper.git" target="_blank" rel="noopener noreferrer" class="footer-github-btn" title="Visit Repository on GitHub">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0 0 24 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>GitHub</span>
+        </a>
+      </div>
+    </div>
+  </footer>
 
   <script src="script.js"></script>
 </body>

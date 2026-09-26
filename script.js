@@ -135,15 +135,18 @@ const SPECIMENS = {
   custom: {
     name: "Custom Specimen",
     type: "external",
-    size: 25.00,
-    shape: "custom",
-    currentMode: "custom",
-    dimensions: { diameter: 25.00, length: 50.00, id: 16.00, od: 25.00 },
+    size: 55.00,
+    shape: "cylinder",
+    currentMode: "length",
+    customShapeType: "cylinder",
+    dimensions: { length: 55.00, od: 25.00, id: 16.00, depth: 32.00, diameter: 25.00 },
     material: "steel",
     density: 7.85,
     measureModes: [
-      { id: 'custom', label: 'Outer Dimension (Lower Jaws)', type: 'external', key: 'od', defaultVal: 25.00 },
-      { id: 'custom_id', label: 'Inner Bore ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 16.00 }
+      { id: 'length', label: 'Custom Length (L)', type: 'external', key: 'length', defaultVal: 55.00 },
+      { id: 'od', label: 'Outer Diameter / Width (OD)', type: 'external', key: 'od', defaultVal: 25.00 },
+      { id: 'id', label: 'Internal Bore (ID)', type: 'internal', key: 'id', defaultVal: 16.00 },
+      { id: 'depth', label: 'Hole / Cavity Depth', type: 'depth', key: 'depth', defaultVal: 32.00 }
     ]
   }
 };
@@ -193,6 +196,7 @@ function toggleAudioSound() {
 window.addEventListener('DOMContentLoaded', () => {
   buildMainScaleTicks();
   buildVernierScaleTicks();
+  syncCustomStudioUI();
   selectSpecimen('brassCylinder');
   updateCaliperState(34.60, false);
   setupDragEvents();
@@ -773,11 +777,7 @@ function onQuickSpecimenChange(key) {
     removeSpecimen();
   } else if (key === 'custom') {
     selectSpecimen('custom');
-    const lenInput = document.getElementById('specimenLengthInput');
-    if (lenInput) {
-      lenInput.focus();
-      lenInput.select();
-    }
+    syncCustomStudioUI();
   } else {
     selectSpecimen(key);
   }
@@ -810,10 +810,8 @@ function onSpecimenLengthChange(val) {
       }
     }
 
-    // Synchronize custom input if active specimen is custom
-    const customInput = document.getElementById('customDiameterInput');
-    if (customInput && activeSpecimenKey === 'custom') {
-      customInput.value = num.toFixed(2);
+    if (activeSpecimenKey === 'custom') {
+      syncCustomStudioUI();
     }
 
     // Synchronize toolbar length input
@@ -840,7 +838,18 @@ function selectSpecimen(key, targetMode = null) {
   if (targetMode) {
     setSpecimenMeasureMode(targetMode);
   } else {
+    if (!spec.currentMode && spec.measureModes && spec.measureModes.length > 0) {
+      spec.currentMode = spec.measureModes[0].id;
+      spec.type = spec.measureModes[0].type;
+      if (spec.dimensions && spec.dimensions[spec.measureModes[0].key] !== undefined) {
+        spec.size = spec.dimensions[spec.measureModes[0].key];
+      }
+    }
     renderSpecimenModeSwitcher();
+  }
+
+  if (key === 'custom') {
+    syncCustomStudioUI();
   }
 
   const lengthEditor = document.getElementById('specimenLengthEditor');
@@ -896,17 +905,167 @@ function setSpecimenMeasureMode(modeId) {
   const lenInput = document.getElementById('specimenLengthInput');
   if (lenInput) lenInput.value = spec.size.toFixed(2);
 
+  if (activeSpecimenKey === 'custom') {
+    syncCustomStudioUI();
+  }
+
   renderSpecimenModeSwitcher();
   renderSpecimenSVG(activeSpecimenKey);
   autoClampToSpecimen();
 }
 
-function applyCustomSpecimenSize(val) {
+// --- ADVANCED CUSTOM SPECIMEN STUDIO HANDLERS ---
+function setCustomSpecimenShape(shape) {
+  SPECIMENS.custom.shape = shape;
+  SPECIMENS.custom.customShapeType = shape;
+  selectSpecimen('custom');
+  syncCustomStudioUI();
+  triggerAudioClick(700, 0.02);
+}
+
+function setCustomActiveMode(mode) {
+  const spec = SPECIMENS.custom;
+  spec.currentMode = mode;
+  
+  if (mode === 'id') {
+    spec.type = 'internal';
+    spec.size = spec.dimensions.id || 16.00;
+  } else if (mode === 'depth') {
+    spec.type = 'depth';
+    spec.size = spec.dimensions.depth || 32.00;
+  } else if (mode === 'length') {
+    spec.type = 'external';
+    spec.size = spec.dimensions.length || 55.00;
+  } else {
+    spec.type = 'external';
+    spec.size = spec.dimensions.od || 25.00;
+  }
+
+  selectSpecimen('custom', mode);
+  syncCustomStudioUI();
+  triggerAudioClick(620, 0.02);
+}
+
+function onCustomDimSliderInput(dimKey, val) {
   const num = parseFloat(val);
-  if (!isNaN(num) && num > 0) {
+  if (isNaN(num) || num <= 0) return;
+
+  SPECIMENS.custom.dimensions[dimKey] = num;
+  if (dimKey === 'od') SPECIMENS.custom.dimensions.diameter = num;
+
+  // Sync direct input box
+  const numInputMap = {
+    length: 'numCustomLength',
+    od: 'numCustomOD',
+    id: 'numCustomID',
+    depth: 'numCustomDepth'
+  };
+  const numInput = document.getElementById(numInputMap[dimKey]);
+  if (numInput) numInput.value = num.toFixed(2);
+
+  if (SPECIMENS.custom.currentMode === dimKey) {
     SPECIMENS.custom.size = num;
-    if (SPECIMENS.custom.dimensions) SPECIMENS.custom.dimensions.diameter = num;
-    selectSpecimen('custom');
+    const lenInput = document.getElementById('specimenLengthInput');
+    if (lenInput) lenInput.value = num.toFixed(2);
+    if (activeSpecimenKey === 'custom') {
+      renderSpecimenSVG('custom');
+      autoClampToSpecimen();
+    }
+  }
+
+  updateCustomCardDesc();
+  updateAllCalculations();
+}
+
+function onCustomDimNumChange(dimKey, val) {
+  const num = parseFloat(val);
+  if (isNaN(num) || num <= 0 || num > 145) return;
+
+  SPECIMENS.custom.dimensions[dimKey] = num;
+  if (dimKey === 'od') SPECIMENS.custom.dimensions.diameter = num;
+
+  const sliderMap = {
+    length: 'sliderCustomLength',
+    od: 'sliderCustomOD',
+    id: 'sliderCustomID',
+    depth: 'sliderCustomDepth'
+  };
+  const slider = document.getElementById(sliderMap[dimKey]);
+  if (slider) slider.value = num.toFixed(2);
+
+  if (SPECIMENS.custom.currentMode === dimKey) {
+    SPECIMENS.custom.size = num;
+    const lenInput = document.getElementById('specimenLengthInput');
+    if (lenInput) lenInput.value = num.toFixed(2);
+    if (activeSpecimenKey === 'custom') {
+      renderSpecimenSVG('custom');
+      autoClampToSpecimen();
+    }
+  }
+
+  updateCustomCardDesc();
+  updateAllCalculations();
+}
+
+function applyQuickPreset(length, od, id, depth) {
+  SPECIMENS.custom.dimensions.length = length;
+  SPECIMENS.custom.dimensions.od = od;
+  SPECIMENS.custom.dimensions.diameter = od;
+  SPECIMENS.custom.dimensions.id = id;
+  SPECIMENS.custom.dimensions.depth = depth;
+
+  const mode = SPECIMENS.custom.currentMode || 'length';
+  SPECIMENS.custom.size = SPECIMENS.custom.dimensions[mode] || length;
+
+  selectSpecimen('custom', mode);
+  syncCustomStudioUI();
+  triggerAudioClick(800, 0.03);
+}
+
+function syncCustomStudioUI() {
+  const dims = SPECIMENS.custom.dimensions;
+  if (!dims) return;
+
+  const sLen = document.getElementById('sliderCustomLength');
+  const nLen = document.getElementById('numCustomLength');
+  if (sLen) sLen.value = (dims.length || 55.00).toFixed(2);
+  if (nLen) nLen.value = (dims.length || 55.00).toFixed(2);
+
+  const sOD = document.getElementById('sliderCustomOD');
+  const nOD = document.getElementById('numCustomOD');
+  if (sOD) sOD.value = (dims.od || 25.00).toFixed(2);
+  if (nOD) nOD.value = (dims.od || 25.00).toFixed(2);
+
+  const sID = document.getElementById('sliderCustomID');
+  const nID = document.getElementById('numCustomID');
+  if (sID) sID.value = (dims.id || 16.00).toFixed(2);
+  if (nID) nID.value = (dims.id || 16.00).toFixed(2);
+
+  const sDepth = document.getElementById('sliderCustomDepth');
+  const nDepth = document.getElementById('numCustomDepth');
+  if (sDepth) sDepth.value = (dims.depth || 32.00).toFixed(2);
+  if (nDepth) nDepth.value = (dims.depth || 32.00).toFixed(2);
+
+  // Update shape buttons
+  const shape = SPECIMENS.custom.shape || 'cylinder';
+  document.querySelectorAll('.shape-btn').forEach(btn => btn.classList.remove('active'));
+  const activeShapeBtn = document.getElementById(`shapeBtn_${shape}`);
+  if (activeShapeBtn) activeShapeBtn.classList.add('active');
+
+  // Update mode switcher buttons
+  const mode = SPECIMENS.custom.currentMode || 'length';
+  document.querySelectorAll('#customTargetSwitch .segmented-switch-btn').forEach(btn => btn.classList.remove('active'));
+  const activeModeBtn = document.getElementById(`btnCustomMode_${mode}`);
+  if (activeModeBtn) activeModeBtn.classList.add('active');
+
+  updateCustomCardDesc();
+}
+
+function updateCustomCardDesc() {
+  const dims = SPECIMENS.custom.dimensions;
+  const desc = document.getElementById('desc_custom');
+  if (desc && dims) {
+    desc.textContent = `L: ${dims.length.toFixed(1)} | OD: ${dims.od.toFixed(1)} | ID: ${dims.id.toFixed(1)} mm`;
   }
 }
 
@@ -934,6 +1093,34 @@ function renderSpecimenSVG(key) {
       container.appendChild(circle);
 
       renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `Diameter: ${spec.size.toFixed(2)} mm`);
+    } else if (key === 'custom' && spec.currentMode === 'length') {
+      // CUSTOM SPECIMEN LENGTH MEASUREMENT (Gripped between lower jaws lengthwise)
+      const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+      rect.setAttribute("x", ORIGIN_X);
+      rect.setAttribute("y", 125);
+      rect.setAttribute("width", widthUnits);
+      rect.setAttribute("height", 60);
+      rect.setAttribute("fill", spec.shape === 'cylinder' ? "url(#satinSteelBeam)" : (spec.shape === 'pipe' ? "url(#satinSteelJaws)" : "#cbd5e1"));
+      rect.setAttribute("stroke", "#0284c7");
+      rect.setAttribute("stroke-width", "1.8");
+      rect.setAttribute("rx", spec.shape === 'cylinder' ? "6" : "3");
+      rect.setAttribute("filter", "url(#caliperDropShadow)");
+      container.appendChild(rect);
+
+      // Add center accent line for cylindrical or block look
+      if (spec.shape === 'cylinder' || spec.shape === 'pipe') {
+        const centerLine = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        centerLine.setAttribute("x1", ORIGIN_X + 4);
+        centerLine.setAttribute("y1", 155);
+        centerLine.setAttribute("x2", ORIGIN_X + widthUnits - 4);
+        centerLine.setAttribute("y2", 155);
+        centerLine.setAttribute("stroke", "#94a3b8");
+        centerLine.setAttribute("stroke-width", "1");
+        centerLine.setAttribute("stroke-dasharray", "4,2");
+        container.appendChild(centerLine);
+      }
+
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, `Custom Length (L): ${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'cylinder' || spec.shape === 'mystery' || spec.shape === 'custom') {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", ORIGIN_X);
@@ -959,7 +1146,7 @@ function renderSpecimenSVG(key) {
         container.appendChild(txt);
       }
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, spec.shape === 'mystery' ? "Mystery OD" : `Outer Dimension: ${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, spec.shape === 'mystery' ? "Mystery OD" : `Outer Dimension (OD): ${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'hex') {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", ORIGIN_X);
@@ -982,8 +1169,8 @@ function renderSpecimenSVG(key) {
       container.appendChild(hole);
 
       renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `Outer Width: ${spec.size.toFixed(2)} mm`);
-    } else if (spec.shape === 'pipe' || spec.shape === 'ringGauge' || spec.shape === 'tube' || spec.shape === 'ring') {
-      // Outer measurement of hollow tube / ring
+    } else if (spec.shape === 'pipe' || spec.shape === 'ringGauge' || spec.shape === 'tube' || spec.shape === 'ring' || spec.shape === 'block') {
+      // Outer measurement of hollow tube / ring / block
       const outer = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       outer.setAttribute("x", ORIGIN_X);
       outer.setAttribute("y", 112);
@@ -995,15 +1182,17 @@ function renderSpecimenSVG(key) {
       outer.setAttribute("rx", "4");
       container.appendChild(outer);
 
-      const inner = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-      inner.setAttribute("x", ORIGIN_X + widthUnits*0.2);
-      inner.setAttribute("y", 124);
-      inner.setAttribute("width", widthUnits*0.6);
-      inner.setAttribute("height", 62);
-      inner.setAttribute("fill", "#f8fafc");
-      inner.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
-      inner.setAttribute("stroke-width", "1.2");
-      container.appendChild(inner);
+      if (spec.shape !== 'block') {
+        const inner = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        inner.setAttribute("x", ORIGIN_X + widthUnits*0.2);
+        inner.setAttribute("y", 124);
+        inner.setAttribute("width", widthUnits*0.6);
+        inner.setAttribute("height", 62);
+        inner.setAttribute("fill", "#f8fafc");
+        inner.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
+        inner.setAttribute("stroke-width", "1.2");
+        container.appendChild(inner);
+      }
 
       renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 218, `Outer Diameter (OD): ${spec.size.toFixed(2)} mm`);
     }
@@ -1061,7 +1250,7 @@ function renderSpecimenSVG(key) {
     container.appendChild(btmBridge);
 
     // Internal Diameter Dimension Annotation
-    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -18, `Internal Diameter (ID): ${spec.size.toFixed(2)} mm`);
+    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -18, `Internal Bore (ID): ${spec.size.toFixed(2)} mm`);
   } else if (spec.type === 'depth') {
     // REALISTIC DEPTH ROD MEASUREMENT
     const block = document.createElementNS("http://www.w3.org/2000/svg", "rect");
