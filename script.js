@@ -220,12 +220,6 @@ function updateCaliperState(targetMM, sound = false) {
   const translateX = currentReading * SCALE_FACTOR;
   sliderGroup.setAttribute('transform', `translate(${translateX}, 0)`);
 
-  // Update Depth Rod
-  const depthRod = document.getElementById('depthRodElement');
-  if (depthRod) {
-    depthRod.setAttribute('width', 880 + translateX);
-  }
-
   // Calculations & DOM updates
   computeMetrologyReadouts();
   refreshLoupeMagnifier();
@@ -561,9 +555,11 @@ function toggleCoincidenceRay() {
 
 function togglePartLabels() {
   isLabelsVisible = !isLabelsVisible;
-  const group = document.getElementById('partLabelsGroup');
+  const fixedGroup = document.getElementById('fixedPartLabelsGroup');
+  const sliderGroup = document.getElementById('sliderPartLabelsGroup');
   const btn = document.getElementById('btnToggleLabels');
-  if (group) group.style.display = isLabelsVisible ? 'block' : 'none';
+  if (fixedGroup) fixedGroup.style.display = isLabelsVisible ? 'block' : 'none';
+  if (sliderGroup) sliderGroup.style.display = isLabelsVisible ? 'block' : 'none';
   btn.classList.toggle('active', isLabelsVisible);
 }
 
