@@ -1,3 +1,8 @@
+// ==========================================
+// STANDARD VERNIER CALIPER VIRTUAL LAB
+// High-Precision Physics Metrology Simulation
+// ==========================================
+
 // System Constants
 const SCALE_FACTOR = 8; // 1 mm = 8 SVG units
 const ORIGIN_X = 120;   // Physical zero anvil alignment coordinate in SVG space
@@ -12,16 +17,135 @@ let isLabelsVisible = false;
 let isRayGuideVisible = true;
 let isSoundMuted = false;
 
-// Specimen Catalog
+// Specimen Catalog with Internal, External, and Multi-Dimension Metrology
 const SPECIMENS = {
-  steelSphere: { name: "Steel Sphere", type: "external", size: 22.45, shape: "sphere" },
-  brassCylinder: { name: "Brass Cylinder", type: "external", size: 34.60, shape: "cylinder" },
-  hexNut: { name: "Steel Hex Nut", type: "external", size: 18.20, shape: "hex" },
-  bearingRing: { name: "Bearing Ring", type: "external", size: 26.80, shape: "ring" },
-  glassTube: { name: "Glass Beaker/Tube", type: "internal", size: 15.35, shape: "tube" },
-  stepWell: { name: "Stepped Well", type: "depth", size: 28.50, shape: "step" },
-  mysterySample: { name: "Mystery Sample", type: "external", size: 19.35, shape: "mystery" },
-  custom: { name: "Custom Specimen", type: "external", size: 25.00, shape: "custom" }
+  brassCylinder: {
+    name: "Brass Cylinder",
+    type: "external",
+    size: 34.60,
+    shape: "cylinder",
+    currentMode: "od",
+    dimensions: { od: 34.60, length: 65.00 },
+    material: "brass",
+    density: 8.50, // g/cm^3
+    measureModes: [
+      { id: 'od', label: 'Outer Diameter (OD)', type: 'external', key: 'od', defaultVal: 34.60 },
+      { id: 'length', label: 'Length (L)', type: 'external', key: 'length', defaultVal: 65.00 }
+    ]
+  },
+  hollowPipe: {
+    name: "Hollow Metal Pipe",
+    type: "internal",
+    size: 22.50,
+    shape: "pipe",
+    currentMode: "id",
+    dimensions: { id: 22.50, od: 34.00, length: 60.00 },
+    material: "steel",
+    density: 7.85,
+    measureModes: [
+      { id: 'id', label: 'Internal Diameter ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 22.50 },
+      { id: 'od', label: 'Outer Diameter OD (Lower Jaws)', type: 'external', key: 'od', defaultVal: 34.00 },
+      { id: 'length', label: 'Length L (Lower Jaws)', type: 'external', key: 'length', defaultVal: 60.00 }
+    ]
+  },
+  glassTube: {
+    name: "Glass Beaker / Tube",
+    type: "internal",
+    size: 26.40,
+    shape: "tube",
+    currentMode: "id",
+    dimensions: { id: 26.40, od: 32.00, depth: 45.00 },
+    material: "glass",
+    density: 2.50,
+    measureModes: [
+      { id: 'id', label: 'Internal Bore ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 26.40 },
+      { id: 'od', label: 'Outer Diameter OD (Lower Jaws)', type: 'external', key: 'od', defaultVal: 32.00 },
+      { id: 'depth', label: 'Internal Depth (Depth Rod)', type: 'depth', key: 'depth', defaultVal: 45.00 }
+    ]
+  },
+  ringGauge: {
+    name: "Precision Ring Gauge",
+    type: "internal",
+    size: 20.00,
+    shape: "ringGauge",
+    currentMode: "id",
+    dimensions: { id: 20.00, od: 38.00, thickness: 14.00 },
+    material: "steel",
+    density: 7.85,
+    measureModes: [
+      { id: 'id', label: 'Internal Diameter ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 20.00 },
+      { id: 'od', label: 'Outer Diameter OD (Lower Jaws)', type: 'external', key: 'od', defaultVal: 38.00 }
+    ]
+  },
+  steelSphere: {
+    name: "Steel Sphere",
+    type: "external",
+    size: 22.45,
+    shape: "sphere",
+    currentMode: "diameter",
+    dimensions: { diameter: 22.45 },
+    material: "steel",
+    density: 7.85,
+    measureModes: [
+      { id: 'diameter', label: 'Sphere Diameter (D)', type: 'external', key: 'diameter', defaultVal: 22.45 }
+    ]
+  },
+  hexNut: {
+    name: "Steel Hex Nut",
+    type: "external",
+    size: 18.20,
+    shape: "hex",
+    currentMode: "od",
+    dimensions: { od: 18.20, id: 10.50, height: 12.00 },
+    material: "steel",
+    density: 7.85,
+    measureModes: [
+      { id: 'od', label: 'Across-Flats Width (Lower Jaws)', type: 'external', key: 'od', defaultVal: 18.20 },
+      { id: 'id', label: 'Internal Hole ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 10.50 }
+    ]
+  },
+  stepWell: {
+    name: "Stepped Well Block",
+    type: "depth",
+    size: 28.50,
+    shape: "step",
+    currentMode: "depth",
+    dimensions: { depth: 28.50, id: 22.00, od: 45.00 },
+    material: "aluminium",
+    density: 2.70,
+    measureModes: [
+      { id: 'depth', label: 'Well Depth (Depth Rod)', type: 'depth', key: 'depth', defaultVal: 28.50 },
+      { id: 'id', label: 'Internal Bore ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 22.00 },
+      { id: 'od', label: 'Block Outer Width (Lower Jaws)', type: 'external', key: 'od', defaultVal: 45.00 }
+    ]
+  },
+  mysterySample: {
+    name: "Mystery Sample",
+    type: "external",
+    size: 19.35,
+    shape: "mystery",
+    currentMode: "diameter",
+    dimensions: { diameter: 19.35, length: 42.00 },
+    material: "brass",
+    density: 8.50,
+    measureModes: [
+      { id: 'diameter', label: 'Diameter (D)', type: 'external', key: 'diameter', defaultVal: 19.35 }
+    ]
+  },
+  custom: {
+    name: "Custom Specimen",
+    type: "external",
+    size: 25.00,
+    shape: "custom",
+    currentMode: "custom",
+    dimensions: { diameter: 25.00, length: 50.00, id: 16.00, od: 25.00 },
+    material: "steel",
+    density: 7.85,
+    measureModes: [
+      { id: 'custom', label: 'Outer Dimension (Lower Jaws)', type: 'external', key: 'od', defaultVal: 25.00 },
+      { id: 'custom_id', label: 'Inner Bore ID (Upper Jaws)', type: 'internal', key: 'id', defaultVal: 16.00 }
+    ]
+  }
 };
 let activeSpecimenKey = 'brassCylinder';
 
@@ -74,10 +198,10 @@ window.addEventListener('DOMContentLoaded', () => {
   setupDragEvents();
   setupKeyboardEvents();
   switchLabTab('free');
+  syncSpecimenToCalculator();
 });
 
 // 1. GENERATE MAIN SCALE GRADUATIONS (0 to 155 mm)
-// Marks start at y = 100 and point UPWARDS so they meet the Vernier ticks tip-to-tip!
 function buildMainScaleTicks() {
   const container = document.getElementById('mainScaleTicksGroup');
   container.innerHTML = '';
@@ -121,7 +245,6 @@ function buildMainScaleTicks() {
 }
 
 // 2. GENERATE VERNIER SCALE GRADUATIONS
-// Marks start at y = 100 and point DOWNWARDS
 function buildVernierScaleTicks() {
   const container = document.getElementById('vernierScaleTicksGroup');
   container.innerHTML = '';
@@ -210,6 +333,10 @@ function updateCaliperState(targetMM, sound = false) {
     const spec = SPECIMENS[activeSpecimenKey];
     if (spec.type === 'external' && clamped < spec.size) {
       clamped = spec.size;
+    } else if (spec.type === 'internal' && clamped > spec.size) {
+      clamped = spec.size;
+    } else if (spec.type === 'depth' && clamped > spec.size) {
+      clamped = spec.size;
     }
   }
 
@@ -223,8 +350,6 @@ function updateCaliperState(targetMM, sound = false) {
   // Update Depth Rod width to always span from carriage to beam end
   const depthRod = document.getElementById('depthRodElement');
   if (depthRod) {
-    // depthRod is inside sliderGroup, its x=500 in local coords; we want to cover back to beam origin
-    // Width in slider local space: extends from x=500 to cover to x=(1380 - translateX)
     depthRod.setAttribute('width', Math.max(0, 1380 - 500 - translateX));
   }
 
@@ -570,25 +695,35 @@ function togglePartLabels() {
   const btn = document.getElementById('btnToggleLabels');
   if (group) group.style.display = isLabelsVisible ? 'block' : 'none';
   btn.classList.toggle('active', isLabelsVisible);
+  if (isLabelsVisible) {
+    updatePartLabelPositions(currentReading * SCALE_FACTOR);
+  }
 }
 
 // Dynamically reposition movable part labels to track the sliding carriage
 function updatePartLabelPositions(translateX) {
   if (!isLabelsVisible) return;
 
-  // jawFaceX = absolute SVG x of the movable jaw contact face
   const jawFaceX = ORIGIN_X + translateX;
 
-  // Movable External Jaw (lower) — tracks the sliding lower jaw body
+  // Upper Internal Jaws
+  setLabelPos('lbl_fixedInternal', 95, -28);
+  setLabelPos('lbl_movInternal', jawFaceX + 25, -28);
+
+  // Lower External Jaws
+  setLabelPos('lbl_fixedExternal', 95, 210);
   setLabelPos('lbl_movExternal', jawFaceX + 35, 210);
 
-  // Locking Screw — at translate(310,2) inside slider local = jawFaceX + 310 absolute
+  // Main Beam Scale
+  setLabelPos('lbl_mainBeam', 880, 50);
+
+  // Locking Screw
   setLabelPos('lbl_lockScrew', jawFaceX + 310, 2);
 
-  // Vernier Scale — center of vernier plate relative to slider
+  // Vernier Scale
   setLabelPos('lbl_vernierScale', jawFaceX + 180, 100);
 
-  // Depth Rod tip — always at x=1380 in SVG (right end of main beam, fixed)
+  // Depth Rod tip
   setLabelPos('lbl_depthRod', 1380, 68);
 }
 
@@ -604,20 +739,26 @@ function switchLabTab(mode) {
   currentActiveTab = mode;
   document.getElementById('tabBtnFree').classList.toggle('active', mode === 'free');
   document.getElementById('tabBtnMeasure').classList.toggle('active', mode === 'measure');
+  if (document.getElementById('tabBtnCalc')) document.getElementById('tabBtnCalc').classList.toggle('active', mode === 'calc');
   document.getElementById('tabBtnQuiz').classList.toggle('active', mode === 'quiz');
 
   const specimenPanel = document.getElementById('specimenCatalogPanel');
+  const calcPanel = document.getElementById('calcSectionPanel');
   const quizPanel = document.getElementById('quizSectionPanel');
 
-  specimenPanel.classList.toggle('active', mode === 'measure');
-  quizPanel.classList.toggle('active', mode === 'quiz');
+  if (specimenPanel) specimenPanel.classList.toggle('active', mode === 'measure');
+  if (calcPanel) calcPanel.classList.toggle('active', mode === 'calc');
+  if (quizPanel) quizPanel.classList.toggle('active', mode === 'quiz');
 
   if (mode === 'free') {
     // Keep current specimen if chosen in dropdown
   } else if (mode === 'measure') {
     if (!activeSpecimenKey) {
-      selectSpecimen('steelSphere');
+      selectSpecimen('brassCylinder');
     }
+  } else if (mode === 'calc') {
+    syncSpecimenToCalculator();
+    updateAllCalculations();
   } else if (mode === 'quiz') {
     removeSpecimen();
     generateRandomQuiz();
@@ -653,17 +794,19 @@ function onSpecimenLengthChange(val) {
   }
 
   if (SPECIMENS[activeSpecimenKey]) {
-    SPECIMENS[activeSpecimenKey].size = num;
+    const spec = SPECIMENS[activeSpecimenKey];
+    spec.size = num;
 
-    // Update catalog card description if present
-    const descEl = document.getElementById(`desc_${activeSpecimenKey}`);
-    if (descEl) {
-      if (SPECIMENS[activeSpecimenKey].type === 'internal') {
-        descEl.textContent = `Inner Size: ${num.toFixed(2)} mm (Inner Jaws)`;
-      } else if (SPECIMENS[activeSpecimenKey].type === 'depth') {
-        descEl.textContent = `Depth: ${num.toFixed(2)} mm (Depth Rod)`;
-      } else {
-        descEl.textContent = `Size: ${num.toFixed(2)} mm (Outer Jaws)`;
+    // Update active dimension inside dimensions dict
+    if (spec.dimensions) {
+      if (spec.currentMode && spec.dimensions[spec.currentMode] !== undefined) {
+        spec.dimensions[spec.currentMode] = num;
+      } else if (spec.dimensions.od !== undefined && spec.type === 'external') {
+        spec.dimensions.od = num;
+      } else if (spec.dimensions.id !== undefined && spec.type === 'internal') {
+        spec.dimensions.id = num;
+      } else if (spec.dimensions.diameter !== undefined) {
+        spec.dimensions.diameter = num;
       }
     }
 
@@ -679,10 +822,11 @@ function onSpecimenLengthChange(val) {
 
     renderSpecimenSVG(activeSpecimenKey);
     autoClampToSpecimen();
+    updateAllCalculations();
   }
 }
 
-function selectSpecimen(key) {
+function selectSpecimen(key, targetMode = null) {
   activeSpecimenKey = key;
   const sel = document.getElementById('quickSpecimenSelect');
   if (sel) sel.value = key;
@@ -690,11 +834,20 @@ function selectSpecimen(key) {
   const clampBtn = document.getElementById('btnQuickClamp');
   if (clampBtn) clampBtn.style.display = 'inline-flex';
 
+  const spec = SPECIMENS[key];
+  if (!spec) return;
+
+  if (targetMode) {
+    setSpecimenMeasureMode(targetMode);
+  } else {
+    renderSpecimenModeSwitcher();
+  }
+
   const lengthEditor = document.getElementById('specimenLengthEditor');
   const lengthInput = document.getElementById('specimenLengthInput');
-  if (lengthEditor && lengthInput && SPECIMENS[key]) {
+  if (lengthEditor && lengthInput) {
     lengthEditor.style.display = 'inline-flex';
-    lengthInput.value = SPECIMENS[key].size.toFixed(2);
+    lengthInput.value = spec.size.toFixed(2);
   }
 
   document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
@@ -702,21 +855,62 @@ function selectSpecimen(key) {
   if (card) card.classList.add('selected');
 
   renderSpecimenSVG(key);
+  autoClampToSpecimen();
+  syncSpecimenToCalculator();
+}
 
-  const spec = SPECIMENS[key];
-  if (spec) {
-    autoClampToSpecimen();
+function renderSpecimenModeSwitcher() {
+  const container = document.getElementById('specimenModeSwitcherGroup');
+  if (!container) return;
+
+  const spec = activeSpecimenKey ? SPECIMENS[activeSpecimenKey] : null;
+  if (!spec || !spec.measureModes || spec.measureModes.length <= 1) {
+    container.style.display = 'none';
+    container.innerHTML = '';
+    return;
   }
+
+  container.style.display = 'inline-flex';
+  let html = `<span class="group-label" style="font-size:0.72rem;color:var(--text-muted);font-weight:700;">Dimension:</span><div class="segmented-switch">`;
+  
+  spec.measureModes.forEach(m => {
+    const isActive = (spec.currentMode === m.id);
+    html += `<button class="segmented-switch-btn ${isActive ? 'active' : ''}" onclick="setSpecimenMeasureMode('${m.id}')">${m.label}</button>`;
+  });
+  html += `</div>`;
+  container.innerHTML = html;
+}
+
+function setSpecimenMeasureMode(modeId) {
+  if (!activeSpecimenKey || !SPECIMENS[activeSpecimenKey]) return;
+  const spec = SPECIMENS[activeSpecimenKey];
+  const mode = spec.measureModes.find(m => m.id === modeId);
+  if (!mode) return;
+
+  spec.currentMode = mode.id;
+  spec.type = mode.type;
+  if (spec.dimensions && spec.dimensions[mode.key] !== undefined) {
+    spec.size = spec.dimensions[mode.key];
+  }
+
+  const lenInput = document.getElementById('specimenLengthInput');
+  if (lenInput) lenInput.value = spec.size.toFixed(2);
+
+  renderSpecimenModeSwitcher();
+  renderSpecimenSVG(activeSpecimenKey);
+  autoClampToSpecimen();
 }
 
 function applyCustomSpecimenSize(val) {
   const num = parseFloat(val);
   if (!isNaN(num) && num > 0) {
     SPECIMENS.custom.size = num;
+    if (SPECIMENS.custom.dimensions) SPECIMENS.custom.dimensions.diameter = num;
     selectSpecimen('custom');
   }
 }
 
+// High-Fidelity Realistic SVG Specimen Renderer
 function renderSpecimenSVG(key) {
   const container = document.getElementById('virtualSpecimenGroup');
   if (!container) return;
@@ -739,7 +933,7 @@ function renderSpecimenSVG(key) {
       circle.setAttribute("filter", "url(#caliperDropShadow)");
       container.appendChild(circle);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `Diameter: ${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'cylinder' || spec.shape === 'mystery' || spec.shape === 'custom') {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", ORIGIN_X);
@@ -765,7 +959,7 @@ function renderSpecimenSVG(key) {
         container.appendChild(txt);
       }
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, spec.shape === 'mystery' ? "Mystery Specimen" : `${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, spec.shape === 'mystery' ? "Mystery OD" : `Outer Dimension: ${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'hex') {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", ORIGIN_X);
@@ -787,62 +981,109 @@ function renderSpecimenSVG(key) {
       hole.setAttribute("stroke-width", "1.5");
       container.appendChild(hole);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
-    } else if (spec.shape === 'ring') {
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `Outer Width: ${spec.size.toFixed(2)} mm`);
+    } else if (spec.shape === 'pipe' || spec.shape === 'ringGauge' || spec.shape === 'tube' || spec.shape === 'ring') {
+      // Outer measurement of hollow tube / ring
       const outer = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       outer.setAttribute("x", ORIGIN_X);
-      outer.setAttribute("y", 115);
+      outer.setAttribute("y", 112);
       outer.setAttribute("width", widthUnits);
-      outer.setAttribute("height", 80);
-      outer.setAttribute("fill", "#cbd5e1");
-      outer.setAttribute("stroke", "#334155");
+      outer.setAttribute("height", 86);
+      outer.setAttribute("fill", spec.shape === 'tube' ? "rgba(56, 189, 248, 0.25)" : "#cbd5e1");
+      outer.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
       outer.setAttribute("stroke-width", "1.8");
       outer.setAttribute("rx", "4");
       container.appendChild(outer);
 
       const inner = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       inner.setAttribute("x", ORIGIN_X + widthUnits*0.2);
-      inner.setAttribute("y", 125);
+      inner.setAttribute("y", 124);
       inner.setAttribute("width", widthUnits*0.6);
-      inner.setAttribute("height", 60);
+      inner.setAttribute("height", 62);
       inner.setAttribute("fill", "#f8fafc");
-      inner.setAttribute("stroke", "#334155");
+      inner.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
       inner.setAttribute("stroke-width", "1.2");
       container.appendChild(inner);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 218, `Outer Diameter (OD): ${spec.size.toFixed(2)} mm`);
     }
   } else if (spec.type === 'internal') {
-    const tube = document.createElementNS("http://www.w3.org/2000/svg", "rect");
-    tube.setAttribute("x", ORIGIN_X - 12);
-    tube.setAttribute("y", -45);
-    tube.setAttribute("width", widthUnits + 24);
-    tube.setAttribute("height", 40);
-    tube.setAttribute("fill", "rgba(56, 189, 248, 0.25)");
-    tube.setAttribute("stroke", "#0284c7");
-    tube.setAttribute("stroke-width", "1.8");
-    tube.setAttribute("rx", "3");
-    container.appendChild(tube);
+    // REALISTIC INTERNAL JAW MEASUREMENT
+    // The upper jaws sit inside the inner bore between x=120 and x=(120 + widthUnits)
+    const wallThick = 20; // Visual thickness of outer metal/glass wall
 
-    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -10, `${spec.size.toFixed(2)} mm (Inner)`);
+    // Outer Shell Top Rim
+    const topBridge = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    topBridge.setAttribute("x", ORIGIN_X - wallThick);
+    topBridge.setAttribute("y", -54);
+    topBridge.setAttribute("width", widthUnits + (wallThick * 2));
+    topBridge.setAttribute("height", 8);
+    topBridge.setAttribute("fill", spec.shape === 'tube' ? "rgba(56, 189, 248, 0.45)" : "#64748b");
+    topBridge.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
+    topBridge.setAttribute("stroke-width", "1.2");
+    topBridge.setAttribute("rx", "2");
+    container.appendChild(topBridge);
+
+    // Left Wall Outer Shell (outside the fixed jaw)
+    const leftWall = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    leftWall.setAttribute("x", ORIGIN_X - wallThick);
+    leftWall.setAttribute("y", -50);
+    leftWall.setAttribute("width", wallThick);
+    leftWall.setAttribute("height", 84);
+    leftWall.setAttribute("fill", spec.shape === 'tube' ? "rgba(56, 189, 248, 0.28)" : "#94a3b8");
+    leftWall.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
+    leftWall.setAttribute("stroke-width", "1.5");
+    leftWall.setAttribute("rx", "2");
+    container.appendChild(leftWall);
+
+    // Right Wall Outer Shell (outside the movable jaw)
+    const rightWall = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    rightWall.setAttribute("x", ORIGIN_X + widthUnits);
+    rightWall.setAttribute("y", -50);
+    rightWall.setAttribute("width", wallThick);
+    rightWall.setAttribute("height", 84);
+    rightWall.setAttribute("fill", spec.shape === 'tube' ? "rgba(56, 189, 248, 0.28)" : "#94a3b8");
+    rightWall.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
+    rightWall.setAttribute("stroke-width", "1.5");
+    rightWall.setAttribute("rx", "2");
+    container.appendChild(rightWall);
+
+    // Bottom Base Rim
+    const btmBridge = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+    btmBridge.setAttribute("x", ORIGIN_X - wallThick);
+    btmBridge.setAttribute("y", 28);
+    btmBridge.setAttribute("width", widthUnits + (wallThick * 2));
+    btmBridge.setAttribute("height", 8);
+    btmBridge.setAttribute("fill", spec.shape === 'tube' ? "rgba(56, 189, 248, 0.45)" : "#64748b");
+    btmBridge.setAttribute("stroke", spec.shape === 'tube' ? "#0284c7" : "#334155");
+    btmBridge.setAttribute("stroke-width", "1.2");
+    btmBridge.setAttribute("rx", "2");
+    container.appendChild(btmBridge);
+
+    // Internal Diameter Dimension Annotation
+    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -18, `Internal Diameter (ID): ${spec.size.toFixed(2)} mm`);
   } else if (spec.type === 'depth') {
+    // REALISTIC DEPTH ROD MEASUREMENT
     const block = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     block.setAttribute("x", 1380);
-    block.setAttribute("y", 80);
-    block.setAttribute("width", 75);
-    block.setAttribute("height", 110);
+    block.setAttribute("y", 45);
+    block.setAttribute("width", widthUnits + 25);
+    block.setAttribute("height", 50);
     block.setAttribute("fill", "#cbd5e1");
     block.setAttribute("stroke", "#475569");
     block.setAttribute("stroke-width", "1.2");
+    block.setAttribute("rx", "2");
     container.appendChild(block);
 
     const well = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     well.setAttribute("x", 1380);
     well.setAttribute("y", 65);
     well.setAttribute("width", widthUnits);
-    well.setAttribute("height", 8);
+    well.setAttribute("height", 10);
     well.setAttribute("fill", "#0f172a");
     container.appendChild(well);
+
+    renderDimensionAnnotation(container, 1380, 1380 + widthUnits, 105, `Well Depth: ${spec.size.toFixed(2)} mm`);
   }
 }
 
@@ -857,6 +1098,17 @@ function renderDimensionAnnotation(container, x1, x2, y, text) {
   line.setAttribute("stroke-width", "1.2");
   line.setAttribute("stroke-dasharray", "3,2");
 
+  // Arrowhead ticks
+  const tick1 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  tick1.setAttribute("x1", x1); tick1.setAttribute("y1", y - 4);
+  tick1.setAttribute("x2", x1); tick1.setAttribute("y2", y + 4);
+  tick1.setAttribute("stroke", "#0284c7"); tick1.setAttribute("stroke-width", "1.5");
+
+  const tick2 = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  tick2.setAttribute("x1", x2); tick2.setAttribute("y1", y - 4);
+  tick2.setAttribute("x2", x2); tick2.setAttribute("y2", y + 4);
+  tick2.setAttribute("stroke", "#0284c7"); tick2.setAttribute("stroke-width", "1.5");
+
   const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
   t.setAttribute("x", (x1 + x2) / 2);
   t.setAttribute("y", y + 13);
@@ -868,6 +1120,8 @@ function renderDimensionAnnotation(container, x1, x2, y, text) {
   t.textContent = text;
 
   g.appendChild(line);
+  g.appendChild(tick1);
+  g.appendChild(tick2);
   g.appendChild(t);
   container.appendChild(g);
 }
@@ -903,9 +1157,116 @@ function removeSpecimen() {
   if (clampBtn) clampBtn.style.display = 'none';
   const lengthEditor = document.getElementById('specimenLengthEditor');
   if (lengthEditor) lengthEditor.style.display = 'none';
+  const modeSwitcher = document.getElementById('specimenModeSwitcherGroup');
+  if (modeSwitcher) modeSwitcher.style.display = 'none';
   document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
   const container = document.getElementById('virtualSpecimenGroup');
   if (container) container.innerHTML = '';
+}
+
+// --- METROLOGY & VOLUME CALCULATOR ENGINE ---
+function syncSpecimenToCalculator() {
+  if (!activeSpecimenKey || !SPECIMENS[activeSpecimenKey]) return;
+  const spec = SPECIMENS[activeSpecimenKey];
+
+  if (spec.dimensions) {
+    if (spec.dimensions.od !== undefined && document.getElementById('calcInputHollowOD')) {
+      document.getElementById('calcInputHollowOD').value = spec.dimensions.od.toFixed(2);
+    }
+    if (spec.dimensions.id !== undefined && document.getElementById('calcInputHollowID')) {
+      document.getElementById('calcInputHollowID').value = spec.dimensions.id.toFixed(2);
+    }
+    if (spec.dimensions.length !== undefined && document.getElementById('calcInputHollowL')) {
+      document.getElementById('calcInputHollowL').value = spec.dimensions.length.toFixed(2);
+    }
+    if (spec.dimensions.od !== undefined && document.getElementById('calcInputCylinderD')) {
+      document.getElementById('calcInputCylinderD').value = spec.dimensions.od.toFixed(2);
+    }
+    if (spec.dimensions.diameter !== undefined) {
+      if (document.getElementById('calcInputCylinderD')) document.getElementById('calcInputCylinderD').value = spec.dimensions.diameter.toFixed(2);
+      if (document.getElementById('calcInputSphereD')) document.getElementById('calcInputSphereD').value = spec.dimensions.diameter.toFixed(2);
+    }
+    if (spec.dimensions.depth !== undefined && document.getElementById('calcInputBeakerDepth')) {
+      document.getElementById('calcInputBeakerDepth').value = spec.dimensions.depth.toFixed(2);
+    }
+    if (spec.dimensions.id !== undefined && document.getElementById('calcInputBeakerID')) {
+      document.getElementById('calcInputBeakerID').value = spec.dimensions.id.toFixed(2);
+    }
+  }
+
+  if (spec.density) {
+    if (document.getElementById('calcMaterialDensity')) {
+      document.getElementById('calcMaterialDensity').value = spec.density;
+    }
+  }
+
+  updateAllCalculations();
+}
+
+function pasteCaliperReadingToInput(inputId) {
+  const el = document.getElementById(inputId);
+  if (el) {
+    el.value = currentReading.toFixed(2);
+    updateAllCalculations();
+    triggerAudioClick(750, 0.02);
+  }
+}
+
+function updateAllCalculations() {
+  // 1. Hollow Cylinder / Pipe Calculation
+  const hollowOD = parseFloat(document.getElementById('calcInputHollowOD')?.value || 34.00);
+  const hollowID = parseFloat(document.getElementById('calcInputHollowID')?.value || 22.50);
+  const hollowL = parseFloat(document.getElementById('calcInputHollowL')?.value || 60.00);
+  const density = parseFloat(document.getElementById('calcMaterialDensity')?.value || 7.85);
+
+  if (hollowOD > 0 && hollowID > 0 && hollowL > 0) {
+    const wallThick = Math.max(0, (hollowOD - hollowID) / 2);
+    const rOut = hollowOD / 2;
+    const rIn = hollowID / 2;
+    const crossArea = Math.max(0, Math.PI * (Math.pow(rOut, 2) - Math.pow(rIn, 2))); // mm^2
+    const matVolumeMM3 = crossArea * hollowL; // mm^3
+    const matVolumeCM3 = matVolumeMM3 / 1000; // cm^3
+    const internalCapacityML = (Math.PI * Math.pow(rIn, 2) * hollowL) / 1000; // mL
+    const massGrams = matVolumeCM3 * density; // g
+
+    const resThick = document.getElementById('resHollowThickness');
+    const resArea = document.getElementById('resHollowArea');
+    const resMatVol = document.getElementById('resHollowMatVolume');
+    const resInCap = document.getElementById('resHollowInCapacity');
+    const resMass = document.getElementById('resHollowMass');
+
+    if (resThick) resThick.textContent = `${wallThick.toFixed(2)} mm`;
+    if (resArea) resArea.textContent = `${crossArea.toFixed(2)} mm²`;
+    if (resMatVol) resMatVol.textContent = `${matVolumeCM3.toFixed(2)} cm³ (${matVolumeMM3.toFixed(0)} mm³)`;
+    if (resInCap) resInCap.textContent = `${internalCapacityML.toFixed(2)} mL (cm³)`;
+    if (resMass) resMass.textContent = `${massGrams.toFixed(2)} g (${(massGrams/1000).toFixed(3)} kg)`;
+  }
+
+  // 2. Solid Cylinder Calculation
+  const cylD = parseFloat(document.getElementById('calcInputCylinderD')?.value || 34.60);
+  const cylL = parseFloat(document.getElementById('calcInputCylinderL')?.value || 65.00);
+  if (cylD > 0 && cylL > 0) {
+    const r = cylD / 2;
+    const cylArea = Math.PI * Math.pow(r, 2);
+    const cylVolMM3 = cylArea * cylL;
+    const cylVolCM3 = cylVolMM3 / 1000;
+    const cylMass = cylVolCM3 * density;
+
+    if (document.getElementById('resCylinderVol')) document.getElementById('resCylinderVol').textContent = `${cylVolCM3.toFixed(2)} cm³`;
+    if (document.getElementById('resCylinderMass')) document.getElementById('resCylinderMass').textContent = `${cylMass.toFixed(2)} g`;
+  }
+
+  // 3. Sphere Calculation
+  const sphereD = parseFloat(document.getElementById('calcInputSphereD')?.value || 22.45);
+  if (sphereD > 0) {
+    const r = sphereD / 2;
+    const sphereVolMM3 = (4 / 3) * Math.PI * Math.pow(r, 3);
+    const sphereVolCM3 = sphereVolMM3 / 1000;
+    const sphereMass = sphereVolCM3 * density;
+
+    if (document.getElementById('resSphereVol')) document.getElementById('resSphereVol').textContent = `${sphereVolCM3.toFixed(2)} cm³`;
+    if (document.getElementById('resSphereMass')) document.getElementById('resSphereMass').textContent = `${sphereMass.toFixed(2)} g`;
+  }
 }
 
 // --- QUIZ LOGIC ---

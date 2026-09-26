@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Standard Vernier Caliper - Physics Laboratory Simulation</title>
-  <meta name="description" content="Realistic, standard laboratory-grade Vernier Caliper interactive simulation with visible main scale window, optical coincidence loupe, specimen selection, and quiz mode.">
+  <meta name="description" content="Realistic, standard laboratory-grade Vernier Caliper interactive simulation with internal/external jaw measurement, optical coincidence loupe, specimen catalog, and volume calculator.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -33,6 +33,10 @@
       <button class="nav-tab" id="tabBtnMeasure" onclick="switchLabTab('measure')" role="tab">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
         Specimen Catalog
+      </button>
+      <button class="nav-tab" id="tabBtnCalc" onclick="switchLabTab('calc')" role="tab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="2" width="16" height="20" rx="2"/><line x1="8" y1="6" x2="16" y2="6"/><line x1="16" y1="14" x2="16" y2="18"/><path d="M16 10h.01"/><path d="M12 10h.01"/><path d="M8 10h.01"/><path d="M12 14h.01"/><path d="M8 14h.01"/><path d="M12 18h.01"/><path d="M8 18h.01"/></svg>
+        Diameter & Volume Lab
       </button>
       <button class="nav-tab" id="tabBtnQuiz" onclick="switchLabTab('quiz')" role="tab">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -73,20 +77,24 @@
             <select id="quickSpecimenSelect" onchange="onQuickSpecimenChange(this.value)">
               <option value="none">-- None (Free Drag) --</option>
               <option value="brassCylinder" selected>Brass Cylinder (34.60 mm)</option>
+              <option value="hollowPipe">Hollow Metal Pipe (ID: 22.50 mm)</option>
+              <option value="glassTube">Glass Beaker / Tube (ID: 26.40 mm)</option>
+              <option value="ringGauge">Ring Gauge (ID: 20.00 mm)</option>
               <option value="steelSphere">Steel Sphere (22.45 mm)</option>
               <option value="hexNut">Steel Hex Nut (18.20 mm)</option>
-              <option value="bearingRing">Bearing Ring (26.80 mm)</option>
-              <option value="glassTube">Glass Tube ID (15.35 mm)</option>
-              <option value="stepWell">Step Well Depth (28.50 mm)</option>
+              <option value="stepWell">Step Well Block (Depth: 28.50 mm)</option>
               <option value="mysterySample">Mystery Sample (?)</option>
-              <option value="custom">Custom Size...</option>
+              <option value="custom">Custom Specimen...</option>
             </select>
           </div>
 
-          <!-- Quick Specimen Length Input Badge -->
+          <!-- Specimen Dimension / Mode Switcher -->
+          <div id="specimenModeSwitcherGroup" class="specimen-mode-container" style="display:none;"></div>
+
+          <!-- Quick Specimen Dimension Editor Input -->
           <div class="specimen-length-badge" id="specimenLengthEditor">
-            <span class="length-label">Length/Size:</span>
-            <input type="number" id="specimenLengthInput" min="1" max="140" step="0.01" value="34.60" onchange="onSpecimenLengthChange(this.value)" title="Change specimen dimension">
+            <span class="length-label">Dimension:</span>
+            <input type="number" id="specimenLengthInput" min="1" max="140" step="0.01" value="34.60" onchange="onSpecimenLengthChange(this.value)" title="Change active dimension">
             <span class="length-unit">mm</span>
             <button class="btn-mini-apply" onclick="onSpecimenLengthChange(document.getElementById('specimenLengthInput').value)" title="Apply dimension">Set</button>
           </div>
@@ -193,16 +201,16 @@
             <!-- 1. FIXED BEAM & FIXED JAWS (LEFT SIDE) -->
             <g id="fixedAssembly">
               
-              <!-- Fixed Upper Internal Jaw (Flat right edge at x = 120, spine sweeps leftwards) -->
+              <!-- Fixed Upper Internal Jaw (Outer contact edge is at x = 120, spine sweeps rightwards into the opening space) -->
               <path d="M 120,40 
-                       L 120,-35 
-                       C 120,-46 116,-48 108,-48 
-                       L 98,-48 
-                       C 90,-48 82,-38 78,-20 
-                       L 66,40 Z" 
+                       L 120,-42 
+                       C 120,-46 124,-48 132,-48 
+                       L 142,-48 
+                       C 152,-48 160,-36 164,-15 
+                       L 174,40 Z" 
                     fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
-              <!-- Flat vertical measuring edge for upper fixed jaw (x = 120) -->
-              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="1.8"/>
+              <!-- Flat vertical measuring contact edge for upper fixed jaw (x = 120) -->
+              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="2"/>
 
               <!-- Fixed Lower External Jaw (Flat right edge at x = 120, spine sweeps leftwards to x = 30) -->
               <path d="M 120,100 
@@ -245,16 +253,16 @@
               <rect id="depthRodElement" x="500" y="67" width="880" height="4" fill="url(#depthRodGrad)" stroke="#475569" stroke-width="0.6"/>
               <line id="depthRodTip" x1="1380" y1="65" x2="1380" y2="73" stroke="#0f172a" stroke-width="1.8"/>
 
-              <!-- Movable Upper Internal Jaw (Left flat contact edge at x = 120, spine sweeps rightwards) -->
+              <!-- Movable Upper Internal Jaw (Outer contact edge is on the RIGHT at x = 120 in local slider space, spine sweeps leftwards) -->
               <path d="M 120,40 
-                       L 120,-35 
-                       C 120,-46 124,-48 132,-48 
-                       L 142,-48 
-                       C 150,-48 158,-38 162,-20 
-                       L 174,40 Z" 
+                       L 120,-42 
+                       C 120,-46 116,-48 108,-48 
+                       L 98,-48 
+                       C 88,-48 80,-36 76,-15 
+                       L 66,40 Z" 
                     fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
-              <!-- Flat vertical measuring contact edge for upper movable jaw (x = 120) -->
-              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="1.8"/>
+              <!-- Flat vertical measuring contact edge for upper movable jaw (x = 120 in slider local space) -->
+              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="2"/>
 
               <!-- Movable Lower External Jaw (Left flat contact edge at x = 120, spine sweeps rightwards to x = 210) -->
               <path d="M 120,100 
@@ -325,45 +333,59 @@
               <polygon points="120,101 117,106 123,106" fill="#0284c7"/>
             </g>
 
-            <!-- 4. PART ANATOMY LABELS OVERLAY (Toggleable, positions updated by JS) -->
+            <!-- 4. PART ANATOMY LABELS OVERLAY (Toggleable, positions updated dynamically by JS) -->
             <g id="partLabelsGroup" style="display: none;">
+
+              <!-- Fixed: Upper Internal Jaw -->
+              <g id="lbl_fixedInternal" transform="translate(95, -28)">
+                <line x1="0" y1="0" x2="-25" y2="-12" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="-165" y="-23" width="140" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="-95" y="-8" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Fixed Upper (Inner) Jaw</text>
+              </g>
+
+              <!-- Movable: Upper Internal Jaw -->
+              <g id="lbl_movInternal" transform="translate(145, -28)">
+                <line x1="0" y1="0" x2="25" y2="-12" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="25" y="-23" width="155" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="102" y="-8" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Movable Upper (Inner) Jaw</text>
+              </g>
 
               <!-- Fixed: Lower External Jaw (static left anvil) -->
               <g id="lbl_fixedExternal" transform="translate(95, 210)">
                 <line x1="0" y1="0" x2="-35" y2="15" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="-175" y="4" width="140" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
-                <text x="-105" y="19" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Fixed External Jaw</text>
+                <text x="-105" y="19" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Fixed Lower (Outer) Jaw</text>
               </g>
 
-              <!-- Fixed: Main Beam Scale (always at middle of beam) -->
+              <!-- Main Beam Scale -->
               <g id="lbl_mainBeam" transform="translate(880, 50)">
                 <line x1="0" y1="0" x2="35" y2="-25" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="35" y="-36" width="125" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
                 <text x="97" y="-21" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Main Beam Scale</text>
               </g>
 
-              <!-- Movable: Lower External Jaw — position updated by JS -->
+              <!-- Movable: Lower External Jaw -->
               <g id="lbl_movExternal" transform="translate(120, 210)">
                 <line x1="0" y1="0" x2="35" y2="15" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="35" y="4" width="155" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
-                <text x="115" y="19" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Movable External Jaw</text>
+                <text x="115" y="19" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Movable Lower (Outer) Jaw</text>
               </g>
 
-              <!-- Movable: Locking Screw — position updated by JS -->
+              <!-- Movable: Locking Screw -->
               <g id="lbl_lockScrew" transform="translate(430, 2)">
                 <line x1="0" y1="0" x2="0" y2="-22" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="-52" y="-33" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
                 <text x="0" y="-18" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Locking Screw</text>
               </g>
 
-              <!-- Movable: Vernier Scale plate — position updated by JS -->
+              <!-- Movable: Vernier Scale plate -->
               <g id="lbl_vernierScale" transform="translate(260, 100)">
                 <line x1="0" y1="0" x2="0" y2="40" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="-52" y="40" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
                 <text x="0" y="55" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Vernier Scale</text>
               </g>
 
-              <!-- Movable: Depth Rod tip — position updated by JS -->
+              <!-- Movable: Depth Rod tip -->
               <g id="lbl_depthRod" transform="translate(1380, 68)">
                 <line x1="0" y1="0" x2="-35" y2="-25" stroke="#ef4444" stroke-width="1.2"/>
                 <rect x="-165" y="-36" width="130" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
@@ -371,7 +393,6 @@
               </g>
 
             </g>
-
 
           </g>
         </svg>
@@ -510,10 +531,13 @@
     <!-- Specimen Catalog Panel (Measurement Mode) -->
     <div class="specimen-catalog-panel" id="specimenCatalogPanel">
       <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
-        <h3 style="font-size:0.92rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
-          Choose Virtual Physics Specimen
-        </h3>
+        <div>
+          <h3 style="font-size:0.95rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+            Choose Virtual Physics Specimen
+          </h3>
+          <p style="font-size:0.76rem;color:var(--text-muted);margin-top:2px;">Select standard specimens to measure internal diameter, outer diameter, or depth.</p>
+        </div>
         <div style="display:flex;gap:6px;">
           <button class="btn-action-primary" onclick="autoClampToSpecimen()">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6m-6 4h6m4-14 4 4m0 0 4-4m-4 4v12"/></svg>
@@ -523,14 +547,45 @@
         </div>
       </div>
 
-      <!-- Specimen Cards Grid (No Ø symbol) -->
+      <!-- Specimen Cards Grid -->
       <div class="specimens-grid">
         <div class="specimen-card selected" onclick="selectSpecimen('brassCylinder')" id="card_brassCylinder">
           <svg class="specimen-icon-box" viewBox="0 0 50 50">
             <rect x="12" y="8" width="26" height="34" rx="2" fill="url(#knurledBrassGrad)"/>
           </svg>
           <div class="specimen-card-title">Brass Cylinder</div>
-          <div class="specimen-card-desc" id="desc_brassCylinder">Size: 34.60 mm (Outer Jaws)</div>
+          <span class="specimen-type-pill external">Outer Jaws</span>
+          <div class="specimen-card-desc" id="desc_brassCylinder">OD: 34.60 mm | L: 65.00 mm</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('hollowPipe')" id="card_hollowPipe">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <rect x="8" y="10" width="34" height="30" rx="3" fill="#cbd5e1" stroke="#334155" stroke-width="1.5"/>
+            <circle cx="25" cy="25" r="8" fill="#f0f9ff" stroke="#0284c7" stroke-width="1.8"/>
+          </svg>
+          <div class="specimen-card-title">Hollow Metal Pipe</div>
+          <span class="specimen-type-pill internal">Inner & Outer Jaws</span>
+          <div class="specimen-card-desc" id="desc_hollowPipe">ID: 22.50 mm | OD: 34.00 mm</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('glassTube')" id="card_glassTube">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <path d="M 16,6 L 34,6 L 34,36 C 34,42 30,45 25,45 C 20,45 16,42 16,36 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.8"/>
+            <line x1="20" y1="12" x2="30" y2="12" stroke="#0284c7" stroke-width="1" stroke-dasharray="2,2"/>
+          </svg>
+          <div class="specimen-card-title">Glass Beaker / Tube</div>
+          <span class="specimen-type-pill internal">Inner Jaws & Depth</span>
+          <div class="specimen-card-desc" id="desc_glassTube">Bore ID: 26.40 mm | Depth: 45.00 mm</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('ringGauge')" id="card_ringGauge">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="18" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+            <circle cx="25" cy="25" r="9.5" fill="#f8fafc" stroke="#0284c7" stroke-width="1.8"/>
+          </svg>
+          <div class="specimen-card-title">Precision Ring Gauge</div>
+          <span class="specimen-type-pill internal">Upper Inner Jaws</span>
+          <div class="specimen-card-desc" id="desc_ringGauge">Inner ID: 20.00 mm | OD: 38.00 mm</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('steelSphere')" id="card_steelSphere">
@@ -545,41 +600,27 @@
             <circle cx="25" cy="25" r="18" fill="url(#ballShadeGrad)"/>
           </svg>
           <div class="specimen-card-title">Steel Sphere</div>
-          <div class="specimen-card-desc" id="desc_steelSphere">Size: 22.45 mm (Outer Jaws)</div>
+          <span class="specimen-type-pill external">Outer Jaws</span>
+          <div class="specimen-card-desc" id="desc_steelSphere">Diameter: 22.45 mm</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('hexNut')" id="card_hexNut">
           <svg class="specimen-icon-box" viewBox="0 0 50 50">
             <polygon points="25,6 40,15 40,35 25,44 10,35 10,15" fill="#94a3b8" stroke="#334155" stroke-width="1.5"/>
-            <circle cx="25" cy="25" r="8" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
+            <circle cx="25" cy="25" r="7" fill="#f8fafc" stroke="#0284c7" stroke-width="1.5"/>
           </svg>
           <div class="specimen-card-title">Steel Hex Nut</div>
-          <div class="specimen-card-desc" id="desc_hexNut">Size: 18.20 mm (Outer Jaws)</div>
-        </div>
-
-        <div class="specimen-card" onclick="selectSpecimen('bearingRing')" id="card_bearingRing">
-          <svg class="specimen-icon-box" viewBox="0 0 50 50">
-            <circle cx="25" cy="25" r="18" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
-            <circle cx="25" cy="25" r="10" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
-          </svg>
-          <div class="specimen-card-title">Bearing Ring</div>
-          <div class="specimen-card-desc" id="desc_bearingRing">Size: 26.80 mm (Outer Jaws)</div>
-        </div>
-
-        <div class="specimen-card" onclick="selectSpecimen('glassTube')" id="card_glassTube">
-          <svg class="specimen-icon-box" viewBox="0 0 50 50">
-            <path d="M 18,6 L 32,6 L 32,36 C 32,42 29,45 25,45 C 21,45 18,42 18,36 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
-          </svg>
-          <div class="specimen-card-title">Glass Beaker/Tube</div>
-          <div class="specimen-card-desc" id="desc_glassTube">Inner Size: 15.35 mm (Inner Jaws)</div>
+          <span class="specimen-type-pill multi">Multi-Feature</span>
+          <div class="specimen-card-desc" id="desc_hexNut">Width: 18.20 mm | Hole: 10.50 mm</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('stepWell')" id="card_stepWell">
           <svg class="specimen-icon-box" viewBox="0 0 50 50">
             <path d="M 8,40 L 8,16 L 22,16 L 22,28 L 40,28 L 40,40 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
           </svg>
-          <div class="specimen-card-title">Stepped Well</div>
-          <div class="specimen-card-desc" id="desc_stepWell">Depth: 28.50 mm (Depth Rod)</div>
+          <div class="specimen-card-title">Stepped Well Block</div>
+          <span class="specimen-type-pill depth">Depth Rod</span>
+          <div class="specimen-card-desc" id="desc_stepWell">Depth: 28.50 mm | Bore: 22.00 mm</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('mysterySample')" id="card_mysterySample">
@@ -588,17 +629,159 @@
             <text x="25" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-size="20" font-weight="800" fill="#7c3aed" text-anchor="middle">?</text>
           </svg>
           <div class="specimen-card-title">Mystery Sample</div>
-          <div class="specimen-card-desc">Random Size (Measure It!)</div>
+          <span class="specimen-type-pill mystery">Blind Test</span>
+          <div class="specimen-card-desc">Measure and Calculate!</div>
         </div>
       </div>
 
       <!-- Custom Size Bar -->
       <div class="custom-specimen-bar">
-        <span><strong>Set Custom Specimen Length:</strong></span>
+        <span><strong>Set Custom Specimen Dimension:</strong></span>
         <input type="number" id="customDiameterInput" min="1" max="140" step="0.01" value="25.00" onchange="applyCustomSpecimenSize(this.value)">
         <span>mm</span>
         <button class="btn-pill" onclick="applyCustomSpecimenSize(document.getElementById('customDiameterInput').value)">Apply Custom Size</button>
       </div>
+    </div>
+
+    <!-- Diameter & Volume Calculation Lab Panel -->
+    <div class="calc-section-panel" id="calcSectionPanel">
+      
+      <div class="calc-panel-header">
+        <div>
+          <h3>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21.3 8.7 8.7 21.3c-1 1-2.5 1-3.4 0l-2.6-2.6c-1-1-1-2.5 0-3.4L15.3 2.7c1-1 2.5-1 3.4 0l2.6 2.6c1 1 1 2.5 0 3.4Z"/><line x1="9" y1="9" x2="11" y2="11"/><line x1="6" y1="12" x2="8" y2="14"/><line x1="3" y1="15" x2="5" y2="17"/></svg>
+            Specimen Metrology & Metrology Calculation Lab
+          </h3>
+          <p>Compute internal diameter, outer diameter, wall thickness, cross-sectional area, material volume, fluid capacity, and specimen mass directly from caliper readings.</p>
+        </div>
+        
+        <div class="calc-material-select-wrapper">
+          <label for="calcMaterialDensity">Specimen Material:</label>
+          <select id="calcMaterialDensity" onchange="updateAllCalculations()">
+            <option value="7.85">Steel (7.85 g/cm³)</option>
+            <option value="8.50" selected>Brass (8.50 g/cm³)</option>
+            <option value="2.70">Aluminium (2.70 g/cm³)</option>
+            <option value="8.96">Copper (8.96 g/cm³)</option>
+            <option value="2.50">Glass (2.50 g/cm³)</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="calc-grid-layouts">
+        
+        <!-- 1. Hollow Pipe / Cylinder Metrology Calculator -->
+        <div class="calc-formula-card primary-calc">
+          <div class="card-tag">Core Metrology</div>
+          <h4>Hollow Cylinder / Pipe (ID & OD Metrology)</h4>
+          <p class="calc-desc">Measure Outer Diameter (OD) with lower jaws and Internal Bore (ID) with upper jaws to determine wall thickness and volumetric capacity.</p>
+          
+          <div class="calc-inputs-row">
+            <div class="calc-field">
+              <label for="calcInputHollowOD">Outer Diameter (OD):</label>
+              <div class="input-with-paste">
+                <input type="number" id="calcInputHollowOD" value="34.00" step="0.01" oninput="updateAllCalculations()">
+                <span class="unit">mm</span>
+                <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputHollowOD')" title="Paste current caliper reading">📥 Caliper</button>
+              </div>
+            </div>
+
+            <div class="calc-field">
+              <label for="calcInputHollowID">Inner Diameter (ID):</label>
+              <div class="input-with-paste">
+                <input type="number" id="calcInputHollowID" value="22.50" step="0.01" oninput="updateAllCalculations()">
+                <span class="unit">mm</span>
+                <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputHollowID')" title="Paste current caliper reading">📥 Caliper</button>
+              </div>
+            </div>
+
+            <div class="calc-field">
+              <label for="calcInputHollowL">Length / Height (L):</label>
+              <div class="input-with-paste">
+                <input type="number" id="calcInputHollowL" value="60.00" step="0.01" oninput="updateAllCalculations()">
+                <span class="unit">mm</span>
+                <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputHollowL')" title="Paste current caliper reading">📥 Caliper</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Computed Output Metrics -->
+          <div class="calc-results-grid">
+            <div class="res-item">
+              <span class="res-label">Wall Thickness (t = [OD - ID] / 2):</span>
+              <span class="res-val highlight" id="resHollowThickness">5.75 mm</span>
+            </div>
+            <div class="res-item">
+              <span class="res-label">Cross-Sectional Area (A = π[OD² - ID²]/4):</span>
+              <span class="res-val" id="resHollowArea">510.12 mm²</span>
+            </div>
+            <div class="res-item">
+              <span class="res-label">Material Volume (V_mat = A × L):</span>
+              <span class="res-val highlight" id="resHollowMatVolume">30.61 cm³ (30607 mm³)</span>
+            </div>
+            <div class="res-item">
+              <span class="res-label">Internal Bore Fluid Capacity (V_in):</span>
+              <span class="res-val" id="resHollowInCapacity">23.86 mL (cm³)</span>
+            </div>
+            <div class="res-item span-full">
+              <span class="res-label">Calculated Specimen Mass (M = V × ρ):</span>
+              <span class="res-val hero-res" id="resHollowMass">240.27 g (0.240 kg)</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Solid Cylinder & Sphere Dimensions -->
+        <div class="calc-sub-column">
+          
+          <!-- Solid Cylinder -->
+          <div class="calc-formula-card">
+            <h4>Solid Cylinder Volume</h4>
+            <div class="calc-inputs-row mini">
+              <div class="calc-field">
+                <label for="calcInputCylinderD">Diameter (D):</label>
+                <div class="input-with-paste">
+                  <input type="number" id="calcInputCylinderD" value="34.60" step="0.01" oninput="updateAllCalculations()">
+                  <span class="unit">mm</span>
+                  <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputCylinderD')">📥</button>
+                </div>
+              </div>
+              <div class="calc-field">
+                <label for="calcInputCylinderL">Length (L):</label>
+                <div class="input-with-paste">
+                  <input type="number" id="calcInputCylinderL" value="65.00" step="0.01" oninput="updateAllCalculations()">
+                  <span class="unit">mm</span>
+                  <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputCylinderL')">📥</button>
+                </div>
+              </div>
+            </div>
+            <div class="calc-results-mini">
+              <span>Volume: <strong id="resCylinderVol">61.12 cm³</strong></span>
+              <span>Mass: <strong id="resCylinderMass">519.52 g</strong></span>
+            </div>
+          </div>
+
+          <!-- Sphere -->
+          <div class="calc-formula-card">
+            <h4>Precision Sphere Volume</h4>
+            <div class="calc-inputs-row mini">
+              <div class="calc-field">
+                <label for="calcInputSphereD">Diameter (D):</label>
+                <div class="input-with-paste">
+                  <input type="number" id="calcInputSphereD" value="22.45" step="0.01" oninput="updateAllCalculations()">
+                  <span class="unit">mm</span>
+                  <button class="btn-paste-reading" onclick="pasteCaliperReadingToInput('calcInputSphereD')">📥</button>
+                </div>
+              </div>
+            </div>
+            <div class="calc-results-mini">
+              <span>Volume: <strong id="resSphereVol">5.92 cm³</strong></span>
+              <span>Mass: <strong id="resSphereMass">46.49 g</strong></span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
 
     <!-- Practice & Quiz Panel -->
@@ -665,10 +848,15 @@
         <button onclick="closeTheoryModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#64748b;">&times;</button>
       </div>
       <div class="modal-body-content">
-        <h4>1. Working Principle</h4>
+        <h4>1. Working Principle & Jaws Functions</h4>
         <p>
-          A Vernier Caliper operates by aligning $n$ Vernier Scale Divisions (VSD) with $(n - 1)$ Main Scale Divisions (MSD). Because each VSD is slightly shorter than 1 MSD, the difference between them defines the <strong>Least Count</strong> of the instrument.
+          A standard Vernier Caliper features three distinct precision metrology interfaces:
         </p>
+        <ul style="padding-left:18px;">
+          <li><strong>Lower External Jaws:</strong> Used to measure outer dimensions (diameters, lengths, widths).</li>
+          <li><strong>Upper Internal Jaws:</strong> Placed inside hollow bores, pipes, and tubes to measure internal diameter (ID).</li>
+          <li><strong>Depth Rod (Blade):</strong> Extends from the main beam tail to measure the depth of holes, blind wells, and beakers.</li>
+        </ul>
 
         <h4>2. Least Count (LC) Formula</h4>
         <div class="formula-callout">
@@ -685,18 +873,13 @@
           Observed Reading = Main Scale Reading (MSR) + [Coinciding Vernier Division (VSR) &times; LC]
         </div>
 
-        <h4>4. Zero Error Correction</h4>
-        <p>
-          When the jaws are closed completely flush:
-        </p>
+        <h4>4. Volumetric Calculations</h4>
         <ul style="padding-left:18px;">
-          <li><strong>Nil Error:</strong> Vernier 0 mark aligns perfectly with Main Scale 0 mark.</li>
-          <li><strong>Positive Zero Error:</strong> Vernier 0 lies to the right of Main Scale 0. <em>Correction:</em> Subtract error from observed reading.</li>
-          <li><strong>Negative Zero Error:</strong> Vernier 0 lies to the left of Main Scale 0. <em>Correction:</em> Add error to observed reading.</li>
+          <li><strong>Hollow Pipe Wall Thickness:</strong> $t = \frac{OD - ID}{2}$</li>
+          <li><strong>Hollow Pipe Material Volume:</strong> $V_{mat} = \frac{\pi (OD^2 - ID^2) L}{4}$</li>
+          <li><strong>Solid Cylinder Volume:</strong> $V = \frac{\pi D^2 L}{4}$</li>
+          <li><strong>Sphere Volume:</strong> $V = \frac{\pi D^3}{6}$</li>
         </ul>
-        <div class="formula-callout">
-          Corrected Reading = Observed Reading &minus; (Zero Error)
-        </div>
       </div>
     </div>
   </div>

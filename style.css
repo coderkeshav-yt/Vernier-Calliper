@@ -712,9 +712,54 @@ main {
   color: var(--text-primary);
 }
 
+.specimen-type-pill {
+  font-size: 0.62rem;
+  font-weight: 700;
+  padding: 1.5px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.specimen-type-pill.internal {
+  background: #e0f2fe;
+  color: #0284c7;
+  border: 1px solid #bae6fd;
+}
+
+.specimen-type-pill.external {
+  background: #f1f5f9;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
+.specimen-type-pill.depth {
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+}
+
+.specimen-type-pill.multi {
+  background: #f5f3ff;
+  color: #7c3aed;
+  border: 1px solid #ddd6fe;
+}
+
+.specimen-type-pill.mystery {
+  background: #fdf2f8;
+  color: #db2777;
+  border: 1px solid #fbcfe8;
+}
+
 .specimen-card-desc {
   font-size: 0.68rem;
   color: var(--text-muted);
+}
+
+.specimen-mode-container {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 /* Custom Specimen Input Box */
@@ -737,6 +782,269 @@ main {
   font-family: var(--font-mono);
   font-size: 0.85rem;
   font-weight: 600;
+}
+
+/* Diameter & Volume Calculation Lab Panel */
+.calc-section-panel {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 14px;
+  padding: 18px 20px;
+  box-shadow: var(--shadow-sm);
+  display: none;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.calc-section-panel.active {
+  display: flex;
+}
+
+.calc-panel-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 12px;
+}
+
+.calc-panel-header h3 {
+  font-size: 0.98rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.calc-panel-header p {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 3px;
+  max-width: 800px;
+  line-height: 1.45;
+}
+
+.calc-material-select-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  padding: 6px 10px;
+  border-radius: 8px;
+}
+
+.calc-material-select-wrapper label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.calc-material-select-wrapper select {
+  padding: 4px 8px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: #ffffff;
+  font-family: var(--font-sans);
+}
+
+.calc-grid-layouts {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr;
+  gap: 14px;
+}
+
+@media (max-width: 900px) {
+  .calc-grid-layouts {
+    grid-template-columns: 1fr;
+  }
+}
+
+.calc-formula-card {
+  background: #f8fafc;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+}
+
+.calc-formula-card.primary-calc {
+  border-color: #bae6fd;
+  background: linear-gradient(180deg, #f0f9ff 0%, #ffffff 100%);
+}
+
+.calc-formula-card h4 {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.calc-formula-card .card-tag {
+  position: absolute;
+  top: 12px;
+  right: 14px;
+  background: #e0f2fe;
+  color: #0284c7;
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+.calc-desc {
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+.calc-inputs-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+}
+
+.calc-inputs-row.mini {
+  grid-template-columns: 1fr 1fr;
+}
+
+.calc-field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.calc-field label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+.input-with-paste {
+  display: flex;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.input-with-paste input {
+  flex: 1;
+  width: 100%;
+  border: none;
+  padding: 6px 8px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  outline: none;
+}
+
+.input-with-paste .unit {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+  padding-right: 4px;
+}
+
+.btn-paste-reading {
+  background: #f1f5f9;
+  border: none;
+  border-left: 1px solid var(--border-color);
+  padding: 6px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  color: var(--accent-blue);
+  cursor: pointer;
+  transition: all 0.12s ease;
+  white-space: nowrap;
+}
+
+.btn-paste-reading:hover {
+  background: var(--accent-blue-subtle);
+  color: var(--accent-blue-hover);
+}
+
+.calc-results-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.res-item {
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 7px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.res-item.span-full {
+  grid-column: 1 / -1;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+  color: #ffffff;
+  border-color: #334155;
+}
+
+.res-label {
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.res-item.span-full .res-label {
+  color: #94a3b8;
+}
+
+.res-val {
+  font-family: var(--font-mono);
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.res-val.highlight {
+  color: var(--accent-blue);
+}
+
+.res-val.hero-res {
+  font-size: 1.15rem;
+  color: #38bdf8;
+}
+
+.calc-sub-column {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.calc-results-mini {
+  display: flex;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 6px 10px;
+  font-size: 0.76rem;
+  color: var(--text-secondary);
+}
+
+.calc-results-mini strong {
+  font-family: var(--font-mono);
+  color: var(--accent-blue);
 }
 
 /* Practice & Quiz Panel */
@@ -910,4 +1218,98 @@ main {
   font-size: 0.8rem;
   border-radius: 0 6px 6px 0;
   color: var(--text-primary);
+}
+
+/* ====================================================
+   COMPREHENSIVE RESPONSIVE DESIGN (MOBILE & TABLET)
+   ==================================================== */
+
+@media (max-width: 1024px) {
+  header {
+    padding: 10px 16px;
+  }
+  main {
+    padding: 12px 16px 24px 16px;
+    gap: 12px;
+  }
+  .dashboard-dual-grid {
+    grid-template-columns: 1fr;
+  }
+  .calc-grid-layouts {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 10px 14px;
+  }
+  .brand-group {
+    justify-content: center;
+  }
+  .nav-tabs {
+    justify-content: center;
+    overflow-x: auto;
+  }
+  .nav-tab {
+    padding: 6px 10px;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+  .header-actions {
+    justify-content: center;
+  }
+  .workbench-top-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .control-item-group {
+    justify-content: space-between;
+    width: 100%;
+  }
+  .workbench-bottom-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .nudge-buttons-row {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .slider-range-container {
+    width: 100%;
+  }
+  .direct-input-container {
+    justify-content: center;
+  }
+  .metrics-tiles-row {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .hero-total-number {
+    font-size: 1.4rem;
+  }
+  .calc-inputs-row {
+    grid-template-columns: 1fr;
+  }
+  .calc-results-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .metrics-tiles-row {
+    grid-template-columns: 1fr;
+  }
+  .hero-total-display {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+  }
+  .specimens-grid {
+    grid-template-columns: 1fr;
+  }
 }
