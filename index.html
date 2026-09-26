@@ -1,0 +1,2449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Standard Vernier Caliper - Physics Laboratory Simulation</title>
+  <meta name="description" content="Realistic, standard laboratory-grade Vernier Caliper interactive simulation with visible main scale window, optical coincidence loupe, specimen selection, and quiz mode.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-page: #f1f5f9;
+      --card-bg: #ffffff;
+      --border-color: #cbd5e1;
+      --border-dark: #334155;
+      --text-primary: #0f172a;
+      --text-secondary: #475569;
+      --text-muted: #64748b;
+      
+      --accent-blue: #0284c7;
+      --accent-blue-hover: #0369a1;
+      --accent-blue-subtle: #e0f2fe;
+      --accent-green: #10b981;
+      --accent-amber: #f59e0b;
+      --accent-purple: #7c3aed;
+      --accent-red: #ef4444;
+      
+      --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.08), 0 2px 4px -2px rgba(0,0,0,0.05);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -4px rgba(0,0,0,0.05);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    body {
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+      font-family: var(--font-sans);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Top Navigation Header */
+    header {
+      background: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      padding: 10px 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 14px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .brand-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 38px;
+      height: 38px;
+      background: linear-gradient(135deg, #0f172a 0%, #334155 100%);
+      border-radius: 9px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #38bdf8;
+      box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.15);
+    }
+
+    .brand-text h1 {
+      font-size: 1.1rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+    }
+
+    .brand-text p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .nav-tabs {
+      display: flex;
+      background: #e2e8f0;
+      padding: 3px;
+      border-radius: 8px;
+      gap: 2px;
+    }
+
+    .nav-tab {
+      padding: 6px 14px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-sans);
+    }
+
+    .nav-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .nav-tab.active {
+      background: #ffffff;
+      color: var(--accent-blue);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-pill {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 6px 12px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: var(--font-sans);
+    }
+
+    .btn-pill:hover {
+      background: #f8fafc;
+      border-color: #94a3b8;
+      color: var(--text-primary);
+    }
+
+    .btn-pill.active {
+      background: var(--accent-blue-subtle);
+      border-color: #7dd3fc;
+      color: var(--accent-blue);
+    }
+
+    /* Main Content Container */
+    main {
+      flex: 1;
+      max-width: 1440px;
+      margin: 0 auto;
+      width: 100%;
+      padding: 16px 24px 32px 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Caliper Workbench Card */
+    .caliper-workbench-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      box-shadow: var(--shadow-sm);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Workbench Top Control Bar */
+    .workbench-top-bar {
+      padding: 10px 18px;
+      background: #f8fafc;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .control-item-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .group-label {
+      font-size: 0.725rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+    }
+
+    /* Specimen Quick Selector Dropdown in Main Toolbar */
+    .specimen-select-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 7px;
+      padding: 3px 8px;
+    }
+
+    .specimen-select-wrapper select {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: var(--font-sans);
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      cursor: pointer;
+    }
+
+    .segmented-switch {
+      display: inline-flex;
+      background: #e2e8f0;
+      padding: 2px;
+      border-radius: 7px;
+      gap: 2px;
+    }
+
+    .segmented-switch-btn {
+      border: none;
+      background: transparent;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.12s ease;
+      font-family: var(--font-mono);
+    }
+
+    .segmented-switch-btn:hover {
+      color: var(--text-primary);
+    }
+
+    .segmented-switch-btn.active {
+      background: #ffffff;
+      color: var(--accent-blue);
+      box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+    }
+
+    /* Caliper Interactive Canvas Viewport */
+    .caliper-viewport {
+      position: relative;
+      width: 100%;
+      height: 390px;
+      background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+      background-image: 
+        linear-gradient(to right, rgba(203, 213, 225, 0.4) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(203, 213, 225, 0.4) 1px, transparent 1px);
+      background-size: 20px 20px;
+      overflow: hidden;
+      cursor: default;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #caliperSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      touch-action: none;
+    }
+
+    .slider-handle-interactive {
+      cursor: grab;
+    }
+    .slider-handle-interactive:active {
+      cursor: grabbing;
+    }
+
+    /* Caliper Bottom Fine Controller Bar */
+    .workbench-bottom-bar {
+      padding: 10px 20px;
+      background: #f8fafc;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .nudge-buttons-row {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .nudge-btn {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      padding: 5px 10px;
+      border-radius: 6px;
+      font-size: 0.725rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: var(--font-mono);
+      transition: all 0.12s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+    }
+
+    .nudge-btn:hover {
+      background: #f1f5f9;
+      border-color: #94a3b8;
+      color: var(--accent-blue);
+    }
+
+    .slider-range-container {
+      flex: 1;
+      max-width: 460px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .slider-range-container input[type="range"] {
+      flex: 1;
+      height: 6px;
+      border-radius: 3px;
+      accent-color: var(--accent-blue);
+      cursor: ew-resize;
+    }
+
+    .direct-input-container {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+    }
+
+    .direct-input-container input {
+      width: 76px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+      text-align: right;
+      color: var(--text-primary);
+      background: #ffffff;
+    }
+
+    .direct-input-container input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+    }
+
+    /* Dual Grid: Optical Loupe & Precision Readout */
+    .dashboard-dual-grid {
+      display: grid;
+      grid-template-columns: 1.15fr 0.85fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-dual-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    /* Optical Alignment Loupe Card */
+    .loupe-inspection-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .loupe-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .loupe-card-header h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .loupe-glass-stage {
+      width: 100%;
+      height: 180px;
+      background: #090d16;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+      position: relative;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.6);
+    }
+
+    #loupeSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .loupe-legend-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      padding: 0 2px;
+    }
+
+    .legend-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+    }
+
+    .legend-chip-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+    }
+
+    /* Scientific Precision Readout Card */
+    .metrology-readout-card {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .readout-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .readout-card-header h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .metrics-tiles-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+
+    .metric-tile {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 10px;
+      text-align: center;
+    }
+
+    .metric-tile-title {
+      font-size: 0.68rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 2px;
+    }
+
+    .metric-tile-num {
+      font-family: var(--font-mono);
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .metric-tile-num span {
+      font-size: 0.725rem;
+      color: var(--text-muted);
+      font-weight: 500;
+      margin-left: 2px;
+    }
+
+    /* Hero Total Display */
+    .hero-total-display {
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #ffffff;
+      border-radius: 10px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+      border: 1px solid #334155;
+    }
+
+    .hero-total-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .hero-total-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      font-weight: 700;
+    }
+
+    .hero-total-formula {
+      font-size: 0.725rem;
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+    }
+
+    .hero-total-number {
+      font-family: var(--font-mono);
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #38bdf8;
+      display: flex;
+      align-items: baseline;
+      gap: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .hero-total-number span {
+      font-size: 0.85rem;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+
+    /* Math Breakdown Box */
+    .math-breakdown-box {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 0.78rem;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .math-row {
+      display: flex;
+      justify-content: space-between;
+      color: var(--text-secondary);
+    }
+
+    .math-row.highlighted {
+      font-weight: 700;
+      color: var(--text-primary);
+      border-top: 1px dashed var(--border-color);
+      padding-top: 4px;
+      margin-top: 2px;
+    }
+
+    /* Specimen Catalog Panel (Measurement Mode) */
+    .specimen-catalog-panel {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .specimen-catalog-panel.active {
+      display: flex;
+    }
+
+    .specimens-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      gap: 10px;
+    }
+
+    .specimen-card {
+      background: #f8fafc;
+      border: 1.5px solid var(--border-color);
+      border-radius: 9px;
+      padding: 10px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+
+    .specimen-card:hover {
+      border-color: #94a3b8;
+      background: #ffffff;
+      transform: translateY(-1px);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .specimen-card.selected {
+      border-color: var(--accent-blue);
+      background: var(--accent-blue-subtle);
+      box-shadow: 0 0 0 1px var(--accent-blue);
+    }
+
+    .specimen-icon-box {
+      width: 44px;
+      height: 44px;
+    }
+
+    .specimen-card-title {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .specimen-card-desc {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+    }
+
+    /* Custom Specimen Input Box */
+    .custom-specimen-bar {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 8px 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.8rem;
+    }
+
+    .custom-specimen-bar input {
+      width: 80px;
+      padding: 4px 8px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    /* Practice & Quiz Panel */
+    .quiz-section-panel {
+      background: #ffffff;
+      border: 1px solid var(--border-color);
+      border-radius: 14px;
+      padding: 16px 20px;
+      box-shadow: var(--shadow-sm);
+      display: none;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .quiz-section-panel.active {
+      display: flex;
+    }
+
+    .quiz-inputs-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+      gap: 12px;
+      background: #f8fafc;
+      padding: 14px;
+      border-radius: 9px;
+      border: 1px solid var(--border-color);
+    }
+
+    .quiz-input-box {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .quiz-input-box label {
+      font-size: 0.725rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .quiz-input-box input {
+      padding: 7px 10px;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      background: #ffffff;
+    }
+
+    .quiz-input-box input:focus {
+      outline: none;
+      border-color: var(--accent-blue);
+      box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.2);
+    }
+
+    .btn-action-primary {
+      background: var(--accent-blue);
+      color: #ffffff;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 7px;
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-sans);
+      transition: background 0.12s ease;
+    }
+
+    .btn-action-primary:hover {
+      background: var(--accent-blue-hover);
+    }
+
+    .quiz-feedback-banner {
+      padding: 12px 14px;
+      border-radius: 8px;
+      font-size: 0.825rem;
+      line-height: 1.45;
+      display: none;
+    }
+
+    .quiz-feedback-banner.success {
+      background: #ecfdf5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      display: block;
+    }
+
+    .quiz-feedback-banner.failure {
+      background: #fff1f2;
+      color: #9f1239;
+      border: 1px solid #fecdd3;
+      display: block;
+    }
+
+    /* Modal Sheet */
+    .theory-modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(4px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.18s ease;
+    }
+
+    .theory-modal-overlay.open {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    .theory-modal-content {
+      background: #ffffff;
+      width: 100%;
+      max-width: 680px;
+      max-height: 88vh;
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header-bar {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-header-bar h2 {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .modal-body-content {
+      padding: 18px 20px;
+      overflow-y: auto;
+      font-size: 0.86rem;
+      line-height: 1.6;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      color: var(--text-secondary);
+    }
+
+    .modal-body-content h4 {
+      color: var(--text-primary);
+      font-size: 0.92rem;
+      margin-top: 4px;
+    }
+
+    .formula-callout {
+      background: #f8fafc;
+      border-left: 3px solid var(--accent-blue);
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+      border-radius: 0 6px 6px 0;
+      color: var(--text-primary);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Navigation Header -->
+  <header>
+    <div class="brand-group">
+      <div class="brand-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 8.7 21.3c-1 1-2.5 1-3.4 0l-2.6-2.6c-1-1-1-2.5 0-3.4L15.3 2.7c1-1 2.5-1 3.4 0l2.6 2.6c1 1 1 2.5 0 3.4Z"/><path d="m14.5 3.5 6 6"/><path d="m9 9 2 2"/><path d="m6 12 2 2"/><path d="m3 15 2 2"/></svg>
+      </div>
+      <div class="brand-text">
+        <h1>Vernier Caliper Virtual Lab</h1>
+        <p>Standard Laboratory Metrology & Precision Mechanics</p>
+      </div>
+    </div>
+
+    <!-- Mode Selector Tabs -->
+    <div class="nav-tabs" role="tablist">
+      <button class="nav-tab active" id="tabBtnFree" onclick="switchLabTab('free')" role="tab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m10 15 5-3-5-3v6z"/></svg>
+        Free Lab
+      </button>
+      <button class="nav-tab" id="tabBtnMeasure" onclick="switchLabTab('measure')" role="tab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Specimen Catalog
+      </button>
+      <button class="nav-tab" id="tabBtnQuiz" onclick="switchLabTab('quiz')" role="tab">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Practice Quiz
+      </button>
+    </div>
+
+    <!-- Header Action Buttons -->
+    <div class="header-actions">
+      <button class="btn-pill" id="btnToggleLabels" onclick="togglePartLabels()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+        Part Labels
+      </button>
+      <button class="btn-pill" onclick="openTheoryModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        Lab Guide
+      </button>
+      <button class="btn-pill" id="btnSoundToggle" onclick="toggleAudioSound()" title="Toggle Sound">
+        <svg id="soundSvgIcon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main>
+
+    <!-- Caliper Workbench -->
+    <div class="caliper-workbench-card">
+      
+      <!-- Top Control Bar with Quick Specimen Selector -->
+      <div class="workbench-top-bar">
+        
+        <!-- Specimen Quick Selector -->
+        <div class="control-item-group">
+          <span class="group-label">Specimen:</span>
+          <div class="specimen-select-wrapper">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
+            <select id="quickSpecimenSelect" onchange="onQuickSpecimenChange(this.value)">
+              <option value="none">-- None (Free Drag) --</option>
+              <option value="steelSphere">Steel Sphere (Ø 22.45 mm)</option>
+              <option value="brassCylinder">Brass Cylinder (Ø 34.60 mm)</option>
+              <option value="hexNut">Steel Hex Nut (Ø 18.20 mm)</option>
+              <option value="bearingRing">Bearing Ring (Ø 26.80 mm)</option>
+              <option value="glassTube">Glass Tube ID (Ø 15.35 mm)</option>
+              <option value="stepWell">Step Well Depth (28.50 mm)</option>
+              <option value="mysterySample">Mystery Sample (?)</option>
+              <option value="custom">Custom Size...</option>
+            </select>
+          </div>
+          <button class="btn-pill" id="btnQuickClamp" onclick="autoClampToSpecimen()" style="display:none; color:var(--accent-blue); font-weight:700;">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 14h6m-6 4h6m4-14 4 4m0 0 4-4m-4 4v12"/></svg>
+            Auto-Clamp Jaws
+          </button>
+        </div>
+
+        <!-- Least Count Selector -->
+        <div class="control-item-group">
+          <span class="group-label">Least Count (LC):</span>
+          <div class="segmented-switch" id="lcButtonGroup">
+            <button class="segmented-switch-btn" onclick="setLeastCount(0.1)" data-lc="0.1">0.1 mm (10 Div)</button>
+            <button class="segmented-switch-btn active" onclick="setLeastCount(0.05)" data-lc="0.05">0.05 mm (20 Div)</button>
+            <button class="segmented-switch-btn" onclick="setLeastCount(0.02)" data-lc="0.02">0.02 mm (50 Div)</button>
+          </div>
+        </div>
+
+        <!-- Zero Error Selector -->
+        <div class="control-item-group">
+          <span class="group-label">Zero Error:</span>
+          <div class="segmented-switch" id="zeButtonGroup">
+            <button class="segmented-switch-btn active" onclick="setZeroError(0)" data-ze="0">0.00 (Nil)</button>
+            <button class="segmented-switch-btn" onclick="setZeroError(0.06)" data-ze="0.06">+0.06 mm</button>
+            <button class="segmented-switch-btn" onclick="setZeroError(-0.04)" data-ze="-0.04">-0.04 mm</button>
+          </div>
+        </div>
+
+        <!-- Coincidence Ray & Reset Actions -->
+        <div class="control-item-group">
+          <button class="btn-pill active" id="btnToggleRay" onclick="toggleCoincidenceRay()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+            Alignment Guide: <strong id="rayGuideLabel">ON</strong>
+          </button>
+          <button class="btn-pill" onclick="resetJawToZero()">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+            Zero Jaws
+          </button>
+        </div>
+
+      </div>
+
+      <!-- High-Precision SVG Caliper Stage -->
+      <div class="caliper-viewport" id="caliperViewport">
+        <svg id="caliperSvg" viewBox="-30 -60 1480 340" preserveAspectRatio="xMidYMid meet">
+          <defs>
+            <!-- Satin Brushed Stainless Steel Gradients -->
+            <linearGradient id="satinSteelBeam" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="10%" stop-color="#f8fafc"/>
+              <stop offset="35%" stop-color="#e2e8f0"/>
+              <stop offset="75%" stop-color="#cbd5e1"/>
+              <stop offset="100%" stop-color="#94a3b8"/>
+            </linearGradient>
+
+            <linearGradient id="satinSteelJaws" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#64748b"/>
+              <stop offset="18%" stop-color="#cbd5e1"/>
+              <stop offset="65%" stop-color="#e2e8f0"/>
+              <stop offset="90%" stop-color="#f8fafc"/>
+              <stop offset="100%" stop-color="#cbd5e1"/>
+            </linearGradient>
+
+            <linearGradient id="sliderCarriageGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#ffffff"/>
+              <stop offset="15%" stop-color="#f1f5f9"/>
+              <stop offset="55%" stop-color="#cbd5e1"/>
+              <stop offset="85%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+
+            <linearGradient id="knurledBrassGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#fef08a"/>
+              <stop offset="40%" stop-color="#f59e0b"/>
+              <stop offset="85%" stop-color="#b45309"/>
+              <stop offset="100%" stop-color="#78350f"/>
+            </linearGradient>
+
+            <linearGradient id="depthRodGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f8fafc"/>
+              <stop offset="50%" stop-color="#94a3b8"/>
+              <stop offset="100%" stop-color="#64748b"/>
+            </linearGradient>
+
+            <pattern id="knurlTexture" width="4" height="4" patternUnits="userSpaceOnUse">
+              <path d="M0 4L4 0M0 0L4 4" stroke="#92400e" stroke-width="0.75" opacity="0.65"/>
+            </pattern>
+
+            <filter id="caliperDropShadow" x="-3%" y="-3%" width="108%" height="115%">
+              <feDropShadow dx="0" dy="4" stdDeviation="5" flood-color="#0f172a" flood-opacity="0.14"/>
+            </filter>
+
+            <filter id="greenGlowFilter" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2.5" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+            </filter>
+          </defs>
+
+          <!-- CALIPER MASTER GROUP -->
+          <g id="caliperMasterGroup" filter="url(#caliperDropShadow)">
+            
+            <!-- 1. FIXED BEAM & FIXED JAWS (LEFT SIDE) -->
+            <!-- Fixed anvil contact face is at x = 120 facing RIGHT (+x). The spine/body extends to the LEFT (x <= 120)! -->
+            <g id="fixedAssembly">
+              
+              <!-- Fixed Upper Internal Jaw (Flat right edge at x = 120, spine sweeps leftwards) -->
+              <path d="M 120,40 
+                       L 120,-35 
+                       C 120,-46 116,-48 108,-48 
+                       L 98,-48 
+                       C 90,-48 82,-38 78,-20 
+                       L 66,40 Z" 
+                    fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
+              <!-- Flat vertical measuring edge for upper fixed jaw (x = 120) -->
+              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="1.8"/>
+
+              <!-- Fixed Lower External Jaw (Flat right edge at x = 120, spine sweeps leftwards to x = 30) -->
+              <path d="M 120,100 
+                       L 120,230 
+                       C 120,240 114,244 106,244 
+                       L 94,244 
+                       C 80,244 70,225 55,175 
+                       L 30,100 Z" 
+                    fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
+              <!-- Flat vertical measuring contact edge for lower fixed jaw (x = 120) -->
+              <line x1="120" y1="100" x2="120" y2="244" stroke="#0f172a" stroke-width="2"/>
+
+              <!-- Main Scale Beam Bar (x = 0 to 1380, y = 40 to 100, height = 60) -->
+              <rect x="0" y="40" width="1380" height="60" fill="url(#satinSteelBeam)" stroke="#475569" stroke-width="1"/>
+              
+              <!-- Recessed center channel for depth rod slide -->
+              <rect x="20" y="66" width="1360" height="6" fill="#94a3b8" rx="1"/>
+              <line x1="20" y1="69" x2="1380" y2="69" stroke="#475569" stroke-width="0.6"/>
+
+              <!-- Main Beam Brand Inscription -->
+              <text x="140" y="58" font-family="'JetBrains Mono', monospace" font-size="8.5" font-weight="700" fill="#475569" letter-spacing="1">STAINLESS HARDENED • 1 MSD = 1 mm</text>
+              <text x="1340" y="94" font-family="'JetBrains Mono', monospace" font-size="9" font-weight="700" fill="#334155">mm</text>
+
+              <!-- MAIN SCALE GRADUATIONS GROUP (Ticks point UPWARDS from y=100, Numbers at y=74) -->
+              <!-- Placed directly at the bottom edge of beam so they are 100% VISIBLE inside slider window! -->
+              <g id="mainScaleTicksGroup">
+                <!-- Dynamically populated via JS -->
+              </g>
+
+            </g>
+
+            <!-- 2. VIRTUAL SPECIMEN LAYER (Rendered between jaws) -->
+            <g id="virtualSpecimenGroup">
+              <!-- Dynamically drawn object when active -->
+            </g>
+
+            <!-- 3. MOVABLE SLIDER ASSEMBLY (RIGHT SIDE) -->
+            <!-- At reading 0.00 mm: Slider Movable Jaws meet the Fixed Jaws at x = 120 -->
+            <!-- Movable jaw contact face is at x = 120 facing LEFT (-x). The spine/body extends to the RIGHT (x >= 120)! -->
+            <g id="sliderGroup" transform="translate(0, 0)">
+              
+              <!-- Extending Depth Gauge Rod (Protrudes past beam tail at x = 1380) -->
+              <rect id="depthRodElement" x="500" y="67" width="880" height="4" fill="url(#depthRodGrad)" stroke="#475569" stroke-width="0.6"/>
+              <line id="depthRodTip" x1="1380" y1="65" x2="1380" y2="73" stroke="#0f172a" stroke-width="1.8"/>
+
+              <!-- Movable Upper Internal Jaw (Left flat contact edge at x = 120, spine sweeps rightwards) -->
+              <path d="M 120,40 
+                       L 120,-35 
+                       C 120,-46 124,-48 132,-48 
+                       L 142,-48 
+                       C 150,-48 158,-38 162,-20 
+                       L 174,40 Z" 
+                    fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
+              <!-- Flat vertical measuring contact edge for upper movable jaw (x = 120) -->
+              <line x1="120" y1="-48" x2="120" y2="40" stroke="#0f172a" stroke-width="1.8"/>
+
+              <!-- Movable Lower External Jaw (Left flat contact edge at x = 120, spine sweeps rightwards to x = 210) -->
+              <path d="M 120,100 
+                       L 120,230 
+                       C 120,240 126,244 134,244 
+                       L 146,244 
+                       C 160,244 170,225 185,175 
+                       L 210,100 Z" 
+                    fill="url(#satinSteelJaws)" stroke="#475569" stroke-width="1"/>
+              <!-- Flat vertical measuring edge for lower movable jaw (x = 120) -->
+              <line x1="120" y1="100" x2="120" y2="244" stroke="#0f172a" stroke-width="2"/>
+
+              <!-- SLIDER CARRIAGE FRAME WITH TRUE HOLLOW CUTOUT WINDOW! -->
+              <!-- Front/left starts flush at x = 120. Top bar: y = 20 to 48 | Bottom bar: y = 100 to 154 | Right connector: x = 500 to 540 -->
+              <!-- The window (x = 120 to 500, y = 48 to 100) is 100% HOLLOW and completely unobstructed! -->
+              <path d="M 120,20 
+                       L 530,20 
+                       C 538,20 542,24 542,32 
+                       L 542,146 
+                       C 542,152 538,154 530,154 
+                       L 120,154 
+                       C 120,154 120,148 120,144 
+                       L 120,100 
+                       L 500,100 
+                       L 500,48 
+                       L 120,48 
+                       L 120,20 Z" 
+                    fill="url(#sliderCarriageGrad)" 
+                    stroke="#334155" 
+                    stroke-width="1.2"/>
+
+              <!-- Beveled Window Border & Chamfer Ring -->
+              <rect x="120" y="48" width="380" height="52" fill="none" stroke="#475569" stroke-width="1.2" rx="1"/>
+
+              <!-- Upper Brass Locking Screw -->
+              <g id="sliderLockScrew" transform="translate(310, 2)">
+                <rect x="-16" y="0" width="32" height="18" fill="url(#knurledBrassGrad)" stroke="#78350f" stroke-width="1" rx="2"/>
+                <rect x="-16" y="0" width="32" height="18" fill="url(#knurlTexture)"/>
+                <rect x="-8" y="18" width="16" height="3" fill="#64748b"/>
+              </g>
+
+              <!-- Lower Ergonomic Thumb Rest / Grip -->
+              <g id="sliderThumbRest" class="slider-handle-interactive" transform="translate(480, 112)">
+                <rect x="-18" y="-6" width="52" height="38" fill="url(#satinSteelBeam)" stroke="#475569" stroke-width="1" rx="5"/>
+                <!-- Gripping Grooves -->
+                <line x1="-8" y1="2" x2="-8" y2="26" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="2" y1="2" x2="2" y2="26" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="12" y1="2" x2="12" y2="26" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+                <line x1="22" y1="2" x2="22" y2="26" stroke="#475569" stroke-width="2.5" stroke-linecap="round"/>
+                <text x="8" y="41" font-family="'Plus Jakarta Sans', sans-serif" font-size="7.5" font-weight="700" fill="#475569" text-anchor="middle">DRAG</text>
+              </g>
+
+              <!-- Vernier Scale Inset Bevel (White plate on bottom bar starting at y = 100) -->
+              <rect x="120" y="100" width="380" height="44" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" rx="1"/>
+              <text x="490" y="134" font-family="'JetBrains Mono', monospace" font-size="8" font-weight="700" fill="#64748b" text-anchor="end" id="vernierTitleText">VERNIER SCALE</text>
+
+              <!-- VERNIER SCALE GRADUATION TICKS (Start exactly at x = 120, y = 100, point DOWNWARDS) -->
+              <g id="vernierScaleTicksGroup">
+                <!-- Dynamically generated according to Least Count -->
+              </g>
+
+              <!-- Precision Optical Coincidence Guide Line (Green dashed line) -->
+              <g id="alignmentGuideGroup" style="display: block;">
+                <line id="coincidenceLine" x1="120" y1="46" x2="120" y2="146" stroke="#10b981" stroke-width="2" stroke-dasharray="3,2" filter="url(#greenGlowFilter)"/>
+                <polygon id="coincidenceTopPin" points="120,46 116,40 124,40" fill="#10b981"/>
+                <polygon id="coincidenceBottomPin" points="120,146 116,152 124,152" fill="#10b981"/>
+              </g>
+
+              <!-- Vernier Zero Index Pointer -->
+              <polygon points="120,101 117,106 123,106" fill="#0284c7"/>
+            </g>
+
+            <!-- 4. PART ANATOMY LABELS OVERLAY (Toggleable) -->
+            <g id="partLabelsGroup" style="display: none;">
+              <!-- Internal Jaws -->
+              <g transform="translate(120, -35)">
+                <line x1="0" y1="0" x2="-25" y2="-15" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="-135" y="-28" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="-82" y="-13" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Internal Jaws</text>
+              </g>
+              <!-- External Jaws -->
+              <g transform="translate(120, 210)">
+                <line x1="0" y1="0" x2="-25" y2="15" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="-135" y="8" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="-82" y="23" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">External Jaws</text>
+              </g>
+              <!-- Main Beam Scale -->
+              <g transform="translate(420, 45)">
+                <line x1="0" y1="0" x2="25" y2="-25" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="25" y="-36" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="77" y="-21" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Main Beam Scale</text>
+              </g>
+              <!-- Locking Screw -->
+              <g transform="translate(580, 10)">
+                <line x1="0" y1="0" x2="25" y2="-20" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="25" y="-32" width="100" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="75" y="-17" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Locking Screw</text>
+              </g>
+              <!-- Vernier Scale -->
+              <g transform="translate(440, 125)">
+                <line x1="0" y1="0" x2="25" y2="25" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="25" y="16" width="105" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="77" y="31" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Vernier Scale</text>
+              </g>
+              <!-- Depth Blade -->
+              <g transform="translate(1350, 68)">
+                <line x1="0" y1="0" x2="-25" y2="-20" stroke="#ef4444" stroke-width="1.2"/>
+                <rect x="-140" y="-32" width="110" height="22" fill="#ffffff" stroke="#ef4444" rx="4" filter="url(#caliperDropShadow)"/>
+                <text x="-85" y="-17" font-family="'Plus Jakarta Sans', sans-serif" font-size="8.5" font-weight="700" fill="#b91c1c" text-anchor="middle">Depth Rod (Blade)</text>
+              </g>
+            </g>
+
+          </g>
+        </svg>
+      </div>
+
+      <!-- Caliper Fine Tuning Bar -->
+      <div class="workbench-bottom-bar">
+        <div class="nudge-buttons-row">
+          <span style="font-size:0.725rem;font-weight:700;color:var(--text-muted);margin-right:2px;">Nudge:</span>
+          <button class="nudge-btn" onclick="nudgeJaw(-10)" title="Step left 10mm">&laquo; -10 mm</button>
+          <button class="nudge-btn" onclick="nudgeJaw(-1)" title="Step left 1mm">&lsaquo; -1 mm</button>
+          <button class="nudge-btn" onclick="nudgeJaw(-currentLC)" title="Step left 1 Least Count" id="btnNudgeMinusLC">-0.05 mm</button>
+          <button class="nudge-btn" onclick="nudgeJaw(currentLC)" title="Step right 1 Least Count" id="btnNudgePlusLC">+0.05 mm</button>
+          <button class="nudge-btn" onclick="nudgeJaw(1)" title="Step right 1mm">+1 mm &rsaquo;</button>
+          <button class="nudge-btn" onclick="nudgeJaw(10)" title="Step right 10mm">+10 mm &raquo;</button>
+        </div>
+
+        <div class="slider-range-container">
+          <span style="font-size:0.725rem;font-family:var(--font-mono);color:var(--text-muted);">0 mm</span>
+          <input type="range" id="jawRangeSlider" min="0" max="150" step="0.01" value="0" oninput="onRangeSliderInput(this.value)">
+          <span style="font-size:0.725rem;font-family:var(--font-mono);color:var(--text-muted);">150 mm</span>
+        </div>
+
+        <div class="direct-input-container">
+          <label for="directReadingInput">Set Jaw:</label>
+          <input type="number" id="directReadingInput" min="0" max="150" step="0.01" value="0.00" onchange="onDirectInputChange(this.value)">
+          <span>mm</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Dual Dashboard: Optical Loupe & Precision Readout -->
+    <div class="dashboard-dual-grid">
+      
+      <!-- Optical Loupe Magnifier Card -->
+      <div class="loupe-inspection-card">
+        <div class="loupe-card-header">
+          <h3>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Optical Alignment Loupe (Zoom View)
+          </h3>
+          <span style="background:var(--accent-blue-subtle);color:var(--accent-blue);font-size:0.7rem;font-weight:700;padding:2px 8px;border-radius:12px;">5&times; Magnification</span>
+        </div>
+
+        <div class="loupe-glass-stage">
+          <svg id="loupeSvg" viewBox="0 0 600 180" preserveAspectRatio="none">
+            <!-- Loupe Scale Rulers -->
+            <rect x="0" y="0" width="600" height="90" fill="#1e293b"/>
+            <rect x="0" y="90" width="600" height="90" fill="#0f172a"/>
+            <line x1="0" y1="90" x2="600" y2="90" stroke="#334155" stroke-width="1.5"/>
+
+            <g id="loupeMainScaleGroup"></g>
+            <g id="loupeVernierScaleGroup"></g>
+
+            <!-- Center Coincidence Target -->
+            <g id="loupeCoincidenceCrosshair">
+              <line x1="300" y1="8" x2="300" y2="172" stroke="#10b981" stroke-width="2" stroke-dasharray="4,2"/>
+              <circle cx="300" cy="90" r="5" fill="none" stroke="#10b981" stroke-width="1.8"/>
+              <polygon points="300,8 295,2 305,2" fill="#10b981"/>
+              <polygon points="300,172 295,178 305,178" fill="#10b981"/>
+            </g>
+          </svg>
+        </div>
+
+        <div class="loupe-legend-row">
+          <div class="legend-chip">
+            <div class="legend-chip-dot" style="background:#cbd5e1;"></div>
+            <span>Top: <strong>Main Scale (mm)</strong></span>
+          </div>
+          <div class="legend-chip">
+            <div class="legend-chip-dot" style="background:#93c5fd;"></div>
+            <span>Bottom: <strong>Vernier Scale</strong></span>
+          </div>
+          <div class="legend-chip">
+            <div class="legend-chip-dot" style="background:#10b981;"></div>
+            <span id="loupeAlignedLabel">Aligned Division: <strong>0</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Precision Metrology Readout Card -->
+      <div class="metrology-readout-card">
+        <div class="readout-card-header">
+          <h3>Metrology Readout</h3>
+          <span style="font-family:var(--font-mono);font-size:0.725rem;font-weight:700;color:var(--text-muted);background:#f1f5f9;padding:2px 6px;border-radius:4px;" id="badgeLC">LC = 0.05 mm</span>
+        </div>
+
+        <div class="metrics-tiles-row">
+          <div class="metric-tile">
+            <div class="metric-tile-title">Main Scale (MSR)</div>
+            <div class="metric-tile-num" id="msrDisplay">0<span>mm</span></div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-tile-title">Coinciding Div (VSR)</div>
+            <div class="metric-tile-num" id="vsrDisplay">0<span>div</span></div>
+          </div>
+          <div class="metric-tile">
+            <div class="metric-tile-title">Fraction (VSR&times;LC)</div>
+            <div class="metric-tile-num" id="fracDisplay">0.00<span>mm</span></div>
+          </div>
+        </div>
+
+        <!-- Hero Total Readout Display -->
+        <div class="hero-total-display">
+          <div class="hero-total-meta">
+            <div class="hero-total-label">Total Measurement</div>
+            <div class="hero-total-formula" id="gaugeFormulaText">Total = MSR + (VSR &times; LC)</div>
+          </div>
+          <div class="hero-total-number" id="totalDisplay">0.00 <span>mm</span></div>
+        </div>
+
+        <!-- Calculation Breakdown Box -->
+        <div class="math-breakdown-box">
+          <div class="math-row">
+            <span>Main Scale Reading (MSR):</span>
+            <span id="calcMsr" style="font-family:var(--font-mono);font-weight:600;">0.00 mm</span>
+          </div>
+          <div class="math-row">
+            <span>Vernier Coincidence &times; Least Count:</span>
+            <span id="calcVsr" style="font-family:var(--font-mono);font-weight:600;">0 &times; 0.05 = 0.00 mm</span>
+          </div>
+          <div class="math-row highlighted">
+            <span>Observed Reading:</span>
+            <span id="calcObserved" style="font-family:var(--font-mono);">0.00 mm</span>
+          </div>
+          <div class="math-row" id="zeroErrorRow" style="display:none; color:var(--accent-amber);">
+            <span id="zeroErrorDesc">Zero Correction:</span>
+            <span id="calcCorrected" style="font-family:var(--font-mono);font-weight:600;">0.00 mm</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Specimen Catalog Panel (Measurement Mode) -->
+    <div class="specimen-catalog-panel" id="specimenCatalogPanel">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <h3 style="font-size:0.92rem;font-weight:700;color:var(--text-primary);display:flex;align-items:center;gap:6px;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+          Choose Virtual Physics Specimen
+        </h3>
+        <div style="display:flex;gap:6px;">
+          <button class="btn-action-primary" onclick="autoClampToSpecimen()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 14h6m-6 4h6m4-14 4 4m0 0 4-4m-4 4v12"/></svg>
+            Auto-Clamp Jaws to Specimen
+          </button>
+          <button class="btn-pill" onclick="removeSpecimen()">Remove Specimen</button>
+        </div>
+      </div>
+
+      <!-- Specimen Cards Grid -->
+      <div class="specimens-grid">
+        <div class="specimen-card selected" onclick="selectSpecimen('steelSphere')" id="card_steelSphere">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <defs>
+              <radialGradient id="ballShadeGrad" cx="35%" cy="35%" r="65%">
+                <stop offset="0%" stop-color="#ffffff"/>
+                <stop offset="40%" stop-color="#cbd5e1"/>
+                <stop offset="90%" stop-color="#475569"/>
+              </radialGradient>
+            </defs>
+            <circle cx="25" cy="25" r="18" fill="url(#ballShadeGrad)"/>
+          </svg>
+          <div class="specimen-card-title">Steel Sphere</div>
+          <div class="specimen-card-desc">OD: 22.45 mm (Outer Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('brassCylinder')" id="card_brassCylinder">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <rect x="12" y="8" width="26" height="34" rx="2" fill="url(#knurledBrassGrad)"/>
+          </svg>
+          <div class="specimen-card-title">Brass Cylinder</div>
+          <div class="specimen-card-desc">OD: 34.60 mm (Outer Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('hexNut')" id="card_hexNut">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <polygon points="25,6 40,15 40,35 25,44 10,35 10,15" fill="#94a3b8" stroke="#334155" stroke-width="1.5"/>
+            <circle cx="25" cy="25" r="8" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
+          </svg>
+          <div class="specimen-card-title">Steel Hex Nut</div>
+          <div class="specimen-card-desc">OD: 18.20 mm (Outer Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('bearingRing')" id="card_bearingRing">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="18" fill="#e2e8f0" stroke="#334155" stroke-width="2"/>
+            <circle cx="25" cy="25" r="10" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
+          </svg>
+          <div class="specimen-card-title">Bearing Ring</div>
+          <div class="specimen-card-desc">OD: 26.80 mm (Outer Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('glassTube')" id="card_glassTube">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <path d="M 18,6 L 32,6 L 32,36 C 32,42 29,45 25,45 C 21,45 18,42 18,36 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
+          </svg>
+          <div class="specimen-card-title">Glass Beaker/Tube</div>
+          <div class="specimen-card-desc">ID: 15.35 mm (Inner Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('stepWell')" id="card_stepWell">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <path d="M 8,40 L 8,16 L 22,16 L 22,28 L 40,28 L 40,40 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
+          </svg>
+          <div class="specimen-card-title">Stepped Well</div>
+          <div class="specimen-card-desc">Depth: 28.50 mm (Depth Rod)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('mysterySample')" id="card_mysterySample">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <circle cx="25" cy="25" r="18" fill="#f1f5f9" stroke="#7c3aed" stroke-width="1.8"/>
+            <text x="25" y="32" font-family="'Plus Jakarta Sans', sans-serif" font-size="20" font-weight="800" fill="#7c3aed" text-anchor="middle">?</text>
+          </svg>
+          <div class="specimen-card-title">Mystery Sample</div>
+          <div class="specimen-card-desc">Random Size (Measure It!)</div>
+        </div>
+      </div>
+
+      <!-- Custom Size Bar -->
+      <div class="custom-specimen-bar">
+        <span><strong>Custom Specimen:</strong> Set any custom diameter to test:</span>
+        <input type="number" id="customDiameterInput" min="1" max="140" step="0.01" value="25.00" onchange="applyCustomSpecimenSize(this.value)">
+        <span>mm</span>
+        <button class="btn-pill" onclick="applyCustomSpecimenSize(document.getElementById('customDiameterInput').value)">Apply Custom Specimen</button>
+      </div>
+    </div>
+
+    <!-- Practice & Quiz Panel -->
+    <div class="quiz-section-panel" id="quizSectionPanel">
+      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;">
+        <div>
+          <h3 style="font-size:0.95rem;font-weight:700;color:var(--text-primary);">Metrology Quiz Challenge</h3>
+          <p style="font-size:0.78rem;color:var(--text-muted);">Read the Vernier Caliper setting above and submit your calculation.</p>
+        </div>
+        <div style="background:#f1f5f9;padding:5px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;display:flex;gap:8px;">
+          <span>Score: <strong id="quizScoreVal">0</strong> / <span id="quizTotalVal">0</span></span>
+          <span style="color:#cbd5e1;">|</span>
+          <span style="color:var(--accent-green);">Streak: <strong id="quizStreakVal">0</strong></span>
+        </div>
+      </div>
+
+      <div class="quiz-inputs-grid">
+        <div class="quiz-input-box">
+          <label for="quizInputMSR">1. Main Scale Reading (MSR):</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="quizInputMSR" placeholder="e.g. 24" step="1">
+            <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">mm</span>
+          </div>
+        </div>
+
+        <div class="quiz-input-box">
+          <label for="quizInputVSR">2. Vernier Coinciding Div (VSR):</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="quizInputVSR" placeholder="e.g. 7" step="1">
+            <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">div</span>
+          </div>
+        </div>
+
+        <div class="quiz-input-box">
+          <label for="quizInputTotal">3. Total Calculated Reading:</label>
+          <div style="display:flex;align-items:center;gap:6px;">
+            <input type="number" id="quizInputTotal" placeholder="e.g. 24.35" step="0.01">
+            <span style="font-size:0.8rem;color:var(--text-muted);font-weight:600;">mm</span>
+          </div>
+        </div>
+      </div>
+
+      <div style="display:flex;gap:8px;">
+        <button class="btn-action-primary" onclick="verifyQuizAnswer()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+          Check Answer
+        </button>
+        <button class="btn-pill" onclick="generateRandomQuiz()">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+          Next Question
+        </button>
+      </div>
+
+      <div id="quizFeedbackBanner" class="quiz-feedback-banner"></div>
+    </div>
+
+  </main>
+
+  <!-- Lab Theory Modal Sheet -->
+  <div class="theory-modal-overlay" id="theoryModal" onclick="closeTheoryModal(event)">
+    <div class="theory-modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header-bar">
+        <h2>Vernier Caliper: Theory & Metrology Principles</h2>
+        <button onclick="closeTheoryModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:#64748b;">&times;</button>
+      </div>
+      <div class="modal-body-content">
+        <h4>1. Working Principle</h4>
+        <p>
+          A Vernier Caliper operates by aligning $n$ Vernier Scale Divisions (VSD) with $(n - 1)$ Main Scale Divisions (MSD). Because each VSD is slightly shorter than 1 MSD, the difference between them defines the <strong>Least Count</strong> of the instrument.
+        </p>
+
+        <h4>2. Least Count (LC) Formula</h4>
+        <div class="formula-callout">
+          Least Count = 1 MSD &minus; 1 VSD = 1 MSD / n
+        </div>
+        <ul style="padding-left:18px;">
+          <li><strong>0.1 mm precision:</strong> 10 VSD = 9 MSD (9 mm) &rarr; 1 VSD = 0.9 mm &rarr; LC = 1.0 &minus; 0.9 = <strong>0.1 mm</strong>.</li>
+          <li><strong>0.05 mm precision:</strong> 20 VSD = 19 MSD (19 mm) &rarr; 1 VSD = 0.95 mm &rarr; LC = 1.0 &minus; 0.95 = <strong>0.05 mm</strong>.</li>
+          <li><strong>0.02 mm precision:</strong> 50 VSD = 49 MSD (49 mm) &rarr; 1 VSD = 0.98 mm &rarr; LC = 1.0 &minus; 0.98 = <strong>0.02 mm</strong>.</li>
+        </ul>
+
+        <h4>3. Taking a Reading</h4>
+        <div class="formula-callout">
+          Observed Reading = Main Scale Reading (MSR) + [Coinciding Vernier Division (VSR) &times; LC]
+        </div>
+
+        <h4>4. Zero Error Correction</h4>
+        <p>
+          When the jaws are closed completely flush:
+        </p>
+        <ul style="padding-left:18px;">
+          <li><strong>Nil Error:</strong> Vernier 0 mark aligns perfectly with Main Scale 0 mark.</li>
+          <li><strong>Positive Zero Error:</strong> Vernier 0 lies to the right of Main Scale 0. <em>Correction:</em> Subtract error from observed reading.</li>
+          <li><strong>Negative Zero Error:</strong> Vernier 0 lies to the left of Main Scale 0. <em>Correction:</em> Add error to observed reading.</li>
+        </ul>
+        <div class="formula-callout">
+          Corrected Reading = Observed Reading &minus; (Zero Error)
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    // System Constants
+    const SCALE_FACTOR = 8; // 1 mm = 8 SVG units
+    const ORIGIN_X = 120;   // Physical zero anvil alignment coordinate in SVG space
+    const MAX_MM = 150.0;   // 150 mm caliper range
+
+    // State Variables
+    let currentReading = 0.0;
+    let currentLC = 0.05;
+    let currentZeroError = 0.0;
+    let currentActiveTab = 'free';
+    let isLabelsVisible = false;
+    let isRayGuideVisible = true;
+    let isSoundMuted = false;
+
+    // Specimen Catalog
+    const SPECIMENS = {
+      steelSphere: { name: "Steel Sphere", type: "external", size: 22.45, shape: "sphere" },
+      brassCylinder: { name: "Brass Cylinder", type: "external", size: 34.60, shape: "cylinder" },
+      hexNut: { name: "Steel Hex Nut", type: "external", size: 18.20, shape: "hex" },
+      bearingRing: { name: "Bearing Ring", type: "external", size: 26.80, shape: "ring" },
+      glassTube: { name: "Glass Beaker/Tube", type: "internal", size: 15.35, shape: "tube" },
+      stepWell: { name: "Stepped Well", type: "depth", size: 28.50, shape: "step" },
+      mysterySample: { name: "Mystery Sample", type: "external", size: 19.35, shape: "mystery" },
+      custom: { name: "Custom Specimen", type: "external", size: 25.00, shape: "custom" }
+    };
+    let activeSpecimenKey = null;
+
+    // Quiz State
+    let quizTargetValue = 0;
+    let quizScore = 0;
+    let quizTotal = 0;
+    let quizStreak = 0;
+
+    // Synthesized Sound Effect
+    let webAudioCtx = null;
+    function triggerAudioClick(pitch = 650, duration = 0.02) {
+      if (isSoundMuted) return;
+      try {
+        if (!webAudioCtx) {
+          webAudioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (webAudioCtx.state === 'suspended') {
+          webAudioCtx.resume();
+        }
+        const osc = webAudioCtx.createOscillator();
+        const gain = webAudioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(pitch, webAudioCtx.currentTime);
+        gain.gain.setValueAtTime(0.06, webAudioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, webAudioCtx.currentTime + duration);
+        osc.connect(gain);
+        gain.connect(webAudioCtx.destination);
+        osc.start();
+        osc.stop(webAudioCtx.currentTime + duration);
+      } catch (e) {}
+    }
+
+    function toggleAudioSound() {
+      isSoundMuted = !isSoundMuted;
+      const icon = document.getElementById('soundSvgIcon');
+      if (!isSoundMuted) {
+        icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/>`;
+      } else {
+        icon.innerHTML = `<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>`;
+      }
+    }
+
+    // --- INITIALIZATION ---
+    window.addEventListener('DOMContentLoaded', () => {
+      buildMainScaleTicks();
+      buildVernierScaleTicks();
+      updateCaliperState(0);
+      setupDragEvents();
+      setupKeyboardEvents();
+      switchLabTab('free');
+    });
+
+    // 1. GENERATE MAIN SCALE GRADUATIONS (0 to 155 mm)
+    // Marks start at y = 100 and point UPWARDS so they meet the Vernier ticks tip-to-tip!
+    function buildMainScaleTicks() {
+      const container = document.getElementById('mainScaleTicksGroup');
+      container.innerHTML = '';
+
+      for (let mm = 0; mm <= 155; mm++) {
+        const x = ORIGIN_X + (mm * SCALE_FACTOR);
+        let tickLength = 8;
+        let strokeW = 0.85;
+        let strokeColor = "#334155";
+
+        if (mm % 10 === 0) {
+          tickLength = 18;
+          strokeW = 1.4;
+          strokeColor = "#0f172a";
+
+          // Labeled numbers in cm inside the window above the ticks (at y = 74)
+          const cmNum = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          cmNum.setAttribute("x", x);
+          cmNum.setAttribute("y", 74);
+          cmNum.setAttribute("font-family", "'JetBrains Mono', monospace");
+          cmNum.setAttribute("font-size", "10");
+          cmNum.setAttribute("font-weight", "700");
+          cmNum.setAttribute("fill", "#0f172a");
+          cmNum.setAttribute("text-anchor", "middle");
+          cmNum.textContent = (mm / 10).toString();
+          container.appendChild(cmNum);
+        } else if (mm % 5 === 0) {
+          tickLength = 12;
+          strokeW = 1.0;
+        }
+
+        const tick = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        tick.setAttribute("x1", x);
+        tick.setAttribute("y1", 100);
+        tick.setAttribute("x2", x);
+        tick.setAttribute("y2", 100 - tickLength);
+        tick.setAttribute("stroke", strokeColor);
+        tick.setAttribute("stroke-width", strokeW);
+        container.appendChild(tick);
+      }
+    }
+
+    // 2. GENERATE VERNIER SCALE GRADUATIONS
+    // Marks start at y = 100 and point DOWNWARDS
+    function buildVernierScaleTicks() {
+      const container = document.getElementById('vernierScaleTicksGroup');
+      container.innerHTML = '';
+
+      let divisions = 20;
+      let vernierDivMM = 0.95;
+
+      if (Math.abs(currentLC - 0.1) < 0.001) {
+        divisions = 10;
+        vernierDivMM = 0.9;
+      } else if (Math.abs(currentLC - 0.05) < 0.001) {
+        divisions = 20;
+        vernierDivMM = 0.95;
+      } else if (Math.abs(currentLC - 0.02) < 0.001) {
+        divisions = 50;
+        vernierDivMM = 0.98;
+      }
+
+      const title = document.getElementById('vernierTitleText');
+      if (title) {
+        title.textContent = `VERNIER (${divisions} DIV = ${(divisions * vernierDivMM).toFixed(0)} mm | LC ${currentLC} mm)`;
+      }
+
+      for (let i = 0; i <= divisions; i++) {
+        const x = ORIGIN_X + (i * vernierDivMM * SCALE_FACTOR);
+        let tickLength = 8;
+        let strokeW = 0.85;
+        let isMajor = false;
+
+        if (divisions === 10) {
+          isMajor = true;
+          tickLength = 16;
+          strokeW = 1.3;
+        } else if (divisions === 20) {
+          if (i % 2 === 0) {
+            isMajor = true;
+            tickLength = 16;
+            strokeW = 1.3;
+          } else {
+            tickLength = 9;
+          }
+        } else if (divisions === 50) {
+          if (i % 5 === 0) {
+            isMajor = true;
+            tickLength = 16;
+            strokeW = 1.3;
+          } else {
+            tickLength = 7;
+            strokeW = 0.65;
+          }
+        }
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", x);
+        line.setAttribute("y1", 100);
+        line.setAttribute("x2", x);
+        line.setAttribute("y2", 100 + tickLength);
+        line.setAttribute("stroke", "#1e293b");
+        line.setAttribute("stroke-width", strokeW);
+        container.appendChild(line);
+
+        if (isMajor) {
+          const num = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          num.setAttribute("x", x);
+          num.setAttribute("y", 128);
+          num.setAttribute("font-family", "'JetBrains Mono', monospace");
+          num.setAttribute("font-size", divisions === 50 ? "7.5" : "8.5");
+          num.setAttribute("font-weight", "700");
+          num.setAttribute("fill", "#0f172a");
+          num.setAttribute("text-anchor", "middle");
+
+          let label = i;
+          if (divisions === 20) label = i / 2;
+          if (divisions === 50) label = i / 5;
+          num.textContent = label.toString();
+          container.appendChild(num);
+        }
+      }
+    }
+
+    // --- POSITION & METROLOGY ENGINE ---
+    function updateCaliperState(targetMM, sound = false) {
+      let clamped = Math.max(0, Math.min(MAX_MM, targetMM));
+
+      if (activeSpecimenKey && SPECIMENS[activeSpecimenKey]) {
+        const spec = SPECIMENS[activeSpecimenKey];
+        if (spec.type === 'external' && clamped < spec.size) {
+          clamped = spec.size;
+        }
+      }
+
+      currentReading = clamped;
+
+      // Update Movable Carriage Transform in SVG
+      const sliderGroup = document.getElementById('sliderGroup');
+      const translateX = currentReading * SCALE_FACTOR;
+      sliderGroup.setAttribute('transform', `translate(${translateX}, 0)`);
+
+      // Update Depth Rod
+      const depthRod = document.getElementById('depthRodElement');
+      if (depthRod) {
+        depthRod.setAttribute('width', 880 + translateX);
+      }
+
+      // Calculations & DOM updates
+      computeMetrologyReadouts();
+      refreshLoupeMagnifier();
+
+      // Synchronize controller inputs
+      document.getElementById('jawRangeSlider').value = currentReading.toFixed(2);
+      document.getElementById('directReadingInput').value = currentReading.toFixed(2);
+
+      if (sound) {
+        triggerAudioClick(550 + (currentReading % 1) * 300, 0.015);
+      }
+    }
+
+    function computeMetrologyReadouts() {
+      const observed = currentReading + currentZeroError;
+      const msr = Math.floor(observed);
+      const fraction = observed - msr;
+
+      const totalDivisions = Math.round(1 / currentLC);
+      let vsrIndex = Math.round(fraction / currentLC);
+      if (vsrIndex >= totalDivisions) vsrIndex = 0;
+
+      const fracMM = vsrIndex * currentLC;
+      const totalObserved = msr + fracMM;
+      const correctedVal = totalObserved - currentZeroError;
+
+      if (currentActiveTab === 'quiz') {
+        document.getElementById('msrDisplay').innerHTML = `? <span>mm</span>`;
+        document.getElementById('vsrDisplay').innerHTML = `? <span>div</span>`;
+        document.getElementById('fracDisplay').innerHTML = `? <span>mm</span>`;
+        document.getElementById('totalDisplay').innerHTML = `? ? ? <span>mm</span>`;
+        document.getElementById('calcMsr').textContent = `Hidden (Quiz Mode)`;
+        document.getElementById('calcVsr').textContent = `Hidden (Quiz Mode)`;
+        document.getElementById('calcObserved').textContent = `Hidden (Quiz Mode)`;
+      } else {
+        document.getElementById('msrDisplay').innerHTML = `${msr}<span>mm</span>`;
+        document.getElementById('vsrDisplay').innerHTML = `${vsrIndex}<span>div</span>`;
+        document.getElementById('fracDisplay').innerHTML = `${fracMM.toFixed(currentLC === 0.05 || currentLC === 0.02 ? 2 : 1)}<span>mm</span>`;
+        document.getElementById('totalDisplay').innerHTML = `${totalObserved.toFixed(2)} <span>mm</span>`;
+
+        document.getElementById('calcMsr').textContent = `${msr}.00 mm`;
+        document.getElementById('calcVsr').textContent = `${vsrIndex} × ${currentLC} mm = ${fracMM.toFixed(2)} mm`;
+        document.getElementById('calcObserved').textContent = `${totalObserved.toFixed(2)} mm`;
+
+        const zeRow = document.getElementById('zeroErrorRow');
+        if (Math.abs(currentZeroError) > 0.001) {
+          zeRow.style.display = 'flex';
+          const sign = currentZeroError > 0 ? `+${currentZeroError.toFixed(2)}` : `${currentZeroError.toFixed(2)}`;
+          document.getElementById('zeroErrorDesc').textContent = `Zero Error (${sign} mm) Correction:`;
+          document.getElementById('calcCorrected').textContent = `${correctedVal.toFixed(2)} mm`;
+        } else {
+          zeRow.style.display = 'none';
+        }
+      }
+
+      positionCoincidenceGuide(vsrIndex);
+    }
+
+    function positionCoincidenceGuide(vsrIndex) {
+      let vernierDivMM = 0.95;
+      if (Math.abs(currentLC - 0.1) < 0.001) vernierDivMM = 0.9;
+      if (Math.abs(currentLC - 0.02) < 0.001) vernierDivMM = 0.98;
+
+      const coincideX = ORIGIN_X + (vsrIndex * vernierDivMM * SCALE_FACTOR);
+      const line = document.getElementById('coincidenceLine');
+      const pTop = document.getElementById('coincidenceTopPin');
+      const pBtm = document.getElementById('coincidenceBottomPin');
+
+      if (line && pTop && pBtm) {
+        line.setAttribute('x1', coincideX);
+        line.setAttribute('x2', coincideX);
+        pTop.setAttribute('points', `${coincideX},46 ${coincideX-4},40 ${coincideX+4},40`);
+        pBtm.setAttribute('points', `${coincideX},146 ${coincideX-4},152 ${coincideX+4},152`);
+      }
+    }
+
+    // --- OPTICAL LOUPE MAGNIFIER ---
+    function refreshLoupeMagnifier() {
+      const mainGroup = document.getElementById('loupeMainScaleGroup');
+      const vernierGroup = document.getElementById('loupeVernierScaleGroup');
+      if (!mainGroup || !vernierGroup) return;
+
+      mainGroup.innerHTML = '';
+      vernierGroup.innerHTML = '';
+
+      const LOUPE_SCALE = 44; // 1 mm = 44 pixels in Loupe view
+      const centerX = 300;
+
+      const observed = currentReading + currentZeroError;
+      const msr = Math.floor(observed);
+      const totalDivisions = Math.round(1 / currentLC);
+      let vsrIndex = Math.round((observed - msr) / currentLC);
+      if (vsrIndex >= totalDivisions) vsrIndex = 0;
+
+      let vernierDivMM = 0.95;
+      if (Math.abs(currentLC - 0.1) < 0.001) vernierDivMM = 0.9;
+      if (Math.abs(currentLC - 0.02) < 0.001) vernierDivMM = 0.98;
+
+      const coincidenceMM = observed + (vsrIndex * vernierDivMM);
+
+      // 1. Main Scale Ticks in Loupe
+      const minMM = Math.floor(coincidenceMM - 8);
+      const maxMM = Math.ceil(coincidenceMM + 8);
+
+      for (let m = minMM; m <= maxMM; m++) {
+        if (m < 0) continue;
+        const tickX = centerX + (m - coincidenceMM) * LOUPE_SCALE;
+        if (tickX < -10 || tickX > 610) continue;
+
+        let h = 28;
+        let isMajor = (m % 10 === 0);
+        let isMid = (m % 5 === 0);
+        let strokeW = 1.6;
+        let col = "#94a3b8";
+
+        if (isMajor) {
+          h = 50;
+          strokeW = 2.4;
+          col = "#f8fafc";
+        } else if (isMid) {
+          h = 38;
+          strokeW = 1.9;
+          col = "#cbd5e1";
+        }
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", tickX);
+        line.setAttribute("y1", 90 - h);
+        line.setAttribute("x2", tickX);
+        line.setAttribute("y2", 90);
+        line.setAttribute("stroke", col);
+        line.setAttribute("stroke-width", strokeW);
+        mainGroup.appendChild(line);
+
+        if (isMajor || isMid) {
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", tickX);
+          text.setAttribute("y", 90 - h - 5);
+          text.setAttribute("font-family", "'JetBrains Mono', monospace");
+          text.setAttribute("font-size", isMajor ? "12" : "10");
+          text.setAttribute("font-weight", "700");
+          text.setAttribute("fill", isMajor ? "#38bdf8" : "#94a3b8");
+          text.setAttribute("text-anchor", "middle");
+          text.textContent = `${m}`;
+          mainGroup.appendChild(text);
+        }
+      }
+
+      // 2. Vernier Scale Ticks in Loupe
+      for (let v = 0; v <= totalDivisions; v++) {
+        const vPosMM = observed + (v * vernierDivMM);
+        const tickX = centerX + (vPosMM - coincidenceMM) * LOUPE_SCALE;
+        if (tickX < -10 || tickX > 610) continue;
+
+        let h = 30;
+        let isMajor = false;
+        let strokeW = 1.6;
+        let col = "#93c5fd";
+
+        if (totalDivisions === 10) {
+          isMajor = true;
+          h = 48;
+          strokeW = 2.2;
+          col = "#bfdbfe";
+        } else if (totalDivisions === 20) {
+          if (v % 2 === 0) {
+            isMajor = true;
+            h = 48;
+            strokeW = 2.2;
+            col = "#bfdbfe";
+          }
+        } else if (totalDivisions === 50) {
+          if (v % 5 === 0) {
+            isMajor = true;
+            h = 48;
+            strokeW = 2.2;
+            col = "#bfdbfe";
+          }
+        }
+
+        if (v === vsrIndex && isRayGuideVisible) {
+          strokeW = 3.0;
+          col = "#10b981";
+        }
+
+        const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+        line.setAttribute("x1", tickX);
+        line.setAttribute("y1", 90);
+        line.setAttribute("x2", tickX);
+        line.setAttribute("y2", 90 + h);
+        line.setAttribute("stroke", col);
+        line.setAttribute("stroke-width", strokeW);
+        vernierGroup.appendChild(line);
+
+        if (isMajor) {
+          const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          text.setAttribute("x", tickX);
+          text.setAttribute("y", 90 + h + 15);
+          text.setAttribute("font-family", "'JetBrains Mono', monospace");
+          text.setAttribute("font-size", "11");
+          text.setAttribute("font-weight", "700");
+          text.setAttribute("fill", v === vsrIndex ? "#10b981" : "#bfdbfe");
+          text.setAttribute("text-anchor", "middle");
+
+          let label = v;
+          if (totalDivisions === 20) label = v / 2;
+          if (totalDivisions === 50) label = v / 5;
+          text.textContent = label.toString();
+          vernierGroup.appendChild(text);
+        }
+      }
+
+      const label = document.getElementById('loupeAlignedLabel');
+      if (label) {
+        if (currentActiveTab === 'quiz') {
+          label.innerHTML = `Aligned Division: <strong>?</strong>`;
+        } else {
+          label.innerHTML = `Aligned Division: <strong>${vsrIndex}</strong> (matches ${(msr + vsrIndex)} mm)`;
+        }
+      }
+    }
+
+    // --- INTERACTIVE DRAGGING ---
+    function setupDragEvents() {
+      const svg = document.getElementById('caliperSvg');
+      let isDragging = false;
+      let startX = 0;
+      let startReading = 0;
+
+      function getClientX(e) {
+        return e.touches ? e.touches[0].clientX : e.clientX;
+      }
+
+      function onStart(e) {
+        isDragging = true;
+        startX = getClientX(e);
+        startReading = currentReading;
+        document.body.style.cursor = 'grabbing';
+      }
+
+      function onMove(e) {
+        if (!isDragging) return;
+        e.preventDefault();
+        const currentX = getClientX(e);
+        const svgRect = svg.getBoundingClientRect();
+        const pixelsPerMM = (svgRect.width / 1480) * SCALE_FACTOR;
+        const deltaMM = (currentX - startX) / pixelsPerMM;
+        updateCaliperState(startReading + deltaMM, true);
+      }
+
+      function onEnd() {
+        if (isDragging) {
+          isDragging = false;
+          document.body.style.cursor = 'default';
+        }
+      }
+
+      svg.addEventListener('mousedown', onStart);
+      window.addEventListener('mousemove', onMove, { passive: false });
+      window.addEventListener('mouseup', onEnd);
+
+      svg.addEventListener('touchstart', onStart, { passive: false });
+      window.addEventListener('touchmove', onMove, { passive: false });
+      window.addEventListener('touchend', onEnd);
+    }
+
+    function setupKeyboardEvents() {
+      window.addEventListener('keydown', (e) => {
+        if (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'SELECT') return;
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          nudgeJaw(e.shiftKey ? 1.0 : currentLC);
+        } else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          nudgeJaw(e.shiftKey ? -1.0 : -currentLC);
+        } else if (e.key === 'Home') {
+          e.preventDefault();
+          updateCaliperState(0, true);
+        }
+      });
+    }
+
+    function nudgeJaw(deltaMM) {
+      updateCaliperState(currentReading + deltaMM, true);
+    }
+
+    function onRangeSliderInput(val) {
+      updateCaliperState(parseFloat(val), false);
+    }
+
+    function onDirectInputChange(val) {
+      const num = parseFloat(val);
+      if (!isNaN(num)) updateCaliperState(num, true);
+    }
+
+    function resetJawToZero() {
+      updateCaliperState(0, true);
+    }
+
+    // --- CONTROLS & SETTINGS ---
+    function setLeastCount(lc) {
+      currentLC = lc;
+      document.querySelectorAll('#lcButtonGroup .segmented-switch-btn').forEach(b => {
+        b.classList.toggle('active', parseFloat(b.dataset.lc) === lc);
+      });
+      document.getElementById('badgeLC').textContent = `LC = ${lc} mm`;
+      document.getElementById('btnNudgeMinusLC').textContent = `-${lc} mm`;
+      document.getElementById('btnNudgePlusLC').textContent = `+${lc} mm`;
+
+      buildVernierScaleTicks();
+      updateCaliperState(currentReading, false);
+    }
+
+    function setZeroError(ze) {
+      currentZeroError = ze;
+      document.querySelectorAll('#zeButtonGroup .segmented-switch-btn').forEach(b => {
+        b.classList.toggle('active', parseFloat(b.dataset.ze) === ze);
+      });
+      updateCaliperState(currentReading, false);
+    }
+
+    function toggleCoincidenceRay() {
+      isRayGuideVisible = !isRayGuideVisible;
+      const group = document.getElementById('alignmentGuideGroup');
+      const label = document.getElementById('rayGuideLabel');
+      const btn = document.getElementById('btnToggleRay');
+
+      if (group) group.style.display = isRayGuideVisible ? 'block' : 'none';
+      if (label) label.textContent = isRayGuideVisible ? 'ON' : 'OFF';
+      btn.classList.toggle('active', isRayGuideVisible);
+      refreshLoupeMagnifier();
+    }
+
+    function togglePartLabels() {
+      isLabelsVisible = !isLabelsVisible;
+      const group = document.getElementById('partLabelsGroup');
+      const btn = document.getElementById('btnToggleLabels');
+      if (group) group.style.display = isLabelsVisible ? 'block' : 'none';
+      btn.classList.toggle('active', isLabelsVisible);
+    }
+
+    // --- MODE SWITCHING ---
+    function switchLabTab(mode) {
+      currentActiveTab = mode;
+      document.getElementById('tabBtnFree').classList.toggle('active', mode === 'free');
+      document.getElementById('tabBtnMeasure').classList.toggle('active', mode === 'measure');
+      document.getElementById('tabBtnQuiz').classList.toggle('active', mode === 'quiz');
+
+      const specimenPanel = document.getElementById('specimenCatalogPanel');
+      const quizPanel = document.getElementById('quizSectionPanel');
+
+      specimenPanel.classList.toggle('active', mode === 'measure');
+      quizPanel.classList.toggle('active', mode === 'quiz');
+
+      if (mode === 'free') {
+        // Keep current specimen if chosen in dropdown
+      } else if (mode === 'measure') {
+        if (!activeSpecimenKey) {
+          selectSpecimen('steelSphere');
+        }
+      } else if (mode === 'quiz') {
+        removeSpecimen();
+        generateRandomQuiz();
+      }
+
+      updateCaliperState(currentReading, false);
+    }
+
+    // --- SPECIMEN HANDLING & RENDERING ---
+    function onQuickSpecimenChange(key) {
+      if (key === 'none') {
+        removeSpecimen();
+      } else if (key === 'custom') {
+        switchLabTab('measure');
+        selectSpecimen('custom');
+      } else {
+        selectSpecimen(key);
+      }
+    }
+
+    function selectSpecimen(key) {
+      activeSpecimenKey = key;
+      document.getElementById('quickSpecimenSelect').value = key;
+      document.getElementById('btnQuickClamp').style.display = 'inline-flex';
+
+      document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
+      const card = document.getElementById(`card_${key}`);
+      if (card) card.classList.add('selected');
+
+      renderSpecimenSVG(key);
+
+      // Auto-open jaws if smaller than specimen
+      const spec = SPECIMENS[key];
+      if (spec && currentReading < spec.size) {
+        updateCaliperState(spec.size + 4, false);
+      }
+    }
+
+    function applyCustomSpecimenSize(val) {
+      const num = parseFloat(val);
+      if (!isNaN(num) && num > 0) {
+        SPECIMENS.custom.size = num;
+        selectSpecimen('custom');
+      }
+    }
+
+    function renderSpecimenSVG(key) {
+      const container = document.getElementById('virtualSpecimenGroup');
+      container.innerHTML = '';
+      if (!key || !SPECIMENS[key]) return;
+
+      const spec = SPECIMENS[key];
+      const widthUnits = spec.size * SCALE_FACTOR;
+
+      if (spec.type === 'external') {
+        if (spec.shape === 'sphere') {
+          const r = widthUnits / 2;
+          const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          circle.setAttribute("cx", ORIGIN_X + r);
+          circle.setAttribute("cy", 155);
+          circle.setAttribute("r", r);
+          circle.setAttribute("fill", "url(#satinSteelJaws)");
+          circle.setAttribute("stroke", "#334155");
+          circle.setAttribute("stroke-width", "1.8");
+          circle.setAttribute("filter", "url(#caliperDropShadow)");
+          container.appendChild(circle);
+
+          renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+        } else if (spec.shape === 'cylinder' || spec.shape === 'mystery' || spec.shape === 'custom') {
+          const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          rect.setAttribute("x", ORIGIN_X);
+          rect.setAttribute("y", 105);
+          rect.setAttribute("width", widthUnits);
+          rect.setAttribute("height", 100);
+          rect.setAttribute("fill", spec.shape === 'cylinder' ? "url(#knurledBrassGrad)" : (spec.shape === 'mystery' ? "#f1f5f9" : "#e0e7ff"));
+          rect.setAttribute("stroke", "#475569");
+          rect.setAttribute("stroke-width", "1.5");
+          rect.setAttribute("rx", "3");
+          container.appendChild(rect);
+
+          if (spec.shape === 'mystery') {
+            const txt = document.createElementNS("http://www.w3.org/2000/svg", "text");
+            txt.setAttribute("x", ORIGIN_X + widthUnits/2);
+            txt.setAttribute("y", 165);
+            txt.setAttribute("font-family", "'Plus Jakarta Sans', sans-serif");
+            txt.setAttribute("font-size", "28");
+            txt.setAttribute("font-weight", "800");
+            txt.setAttribute("fill", "#7c3aed");
+            txt.setAttribute("text-anchor", "middle");
+            txt.textContent = "?";
+            container.appendChild(txt);
+          }
+
+          renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 225, spec.shape === 'mystery' ? "Mystery Specimen" : `${spec.size.toFixed(2)} mm`);
+        } else if (spec.shape === 'hex') {
+          const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          rect.setAttribute("x", ORIGIN_X);
+          rect.setAttribute("y", 115);
+          rect.setAttribute("width", widthUnits);
+          rect.setAttribute("height", 80);
+          rect.setAttribute("fill", "#94a3b8");
+          rect.setAttribute("stroke", "#334155");
+          rect.setAttribute("stroke-width", "1.8");
+          rect.setAttribute("rx", "3");
+          container.appendChild(rect);
+
+          const hole = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+          hole.setAttribute("cx", ORIGIN_X + widthUnits/2);
+          hole.setAttribute("cy", 155);
+          hole.setAttribute("r", widthUnits/4);
+          hole.setAttribute("fill", "#f8fafc");
+          hole.setAttribute("stroke", "#334155");
+          hole.setAttribute("stroke-width", "1.5");
+          container.appendChild(hole);
+
+          renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+        } else if (spec.shape === 'ring') {
+          const outer = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          outer.setAttribute("x", ORIGIN_X);
+          outer.setAttribute("y", 115);
+          outer.setAttribute("width", widthUnits);
+          outer.setAttribute("height", 80);
+          outer.setAttribute("fill", "#cbd5e1");
+          outer.setAttribute("stroke", "#334155");
+          outer.setAttribute("stroke-width", "1.8");
+          outer.setAttribute("rx", "4");
+          container.appendChild(outer);
+
+          const inner = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+          inner.setAttribute("x", ORIGIN_X + widthUnits*0.2);
+          inner.setAttribute("y", 125);
+          inner.setAttribute("width", widthUnits*0.6);
+          inner.setAttribute("height", 60);
+          inner.setAttribute("fill", "#f8fafc");
+          inner.setAttribute("stroke", "#334155");
+          inner.setAttribute("stroke-width", "1.2");
+          container.appendChild(inner);
+
+          renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+        }
+      } else if (spec.type === 'internal') {
+        const tube = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        tube.setAttribute("x", ORIGIN_X - 12);
+        tube.setAttribute("y", -45);
+        tube.setAttribute("width", widthUnits + 24);
+        tube.setAttribute("height", 40);
+        tube.setAttribute("fill", "rgba(56, 189, 248, 0.25)");
+        tube.setAttribute("stroke", "#0284c7");
+        tube.setAttribute("stroke-width", "1.8");
+        tube.setAttribute("rx", "3");
+        container.appendChild(tube);
+
+        renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -10, `ID: ${spec.size.toFixed(2)} mm`);
+      } else if (spec.type === 'depth') {
+        const block = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        block.setAttribute("x", 1380);
+        block.setAttribute("y", 80);
+        block.setAttribute("width", 75);
+        block.setAttribute("height", 110);
+        block.setAttribute("fill", "#cbd5e1");
+        block.setAttribute("stroke", "#475569");
+        block.setAttribute("stroke-width", "1.2");
+        container.appendChild(block);
+
+        const well = document.createElementNS("http://www.w3.org/2000/svg", "rect");
+        well.setAttribute("x", 1380);
+        well.setAttribute("y", 65);
+        well.setAttribute("width", widthUnits);
+        well.setAttribute("height", 8);
+        well.setAttribute("fill", "#0f172a");
+        container.appendChild(well);
+      }
+    }
+
+    function renderDimensionAnnotation(container, x1, x2, y, text) {
+      const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+      const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      line.setAttribute("x1", x1);
+      line.setAttribute("y1", y);
+      line.setAttribute("x2", x2);
+      line.setAttribute("y2", y);
+      line.setAttribute("stroke", "#0284c7");
+      line.setAttribute("stroke-width", "1.2");
+      line.setAttribute("stroke-dasharray", "3,2");
+
+      const t = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      t.setAttribute("x", (x1 + x2) / 2);
+      t.setAttribute("y", y + 13);
+      t.setAttribute("font-family", "'JetBrains Mono', monospace");
+      t.setAttribute("font-size", "9.5");
+      t.setAttribute("font-weight", "700");
+      t.setAttribute("fill", "#0284c7");
+      t.setAttribute("text-anchor", "middle");
+      t.textContent = text;
+
+      g.appendChild(line);
+      g.appendChild(t);
+      container.appendChild(g);
+    }
+
+    function autoClampToSpecimen() {
+      if (!activeSpecimenKey || !SPECIMENS[activeSpecimenKey]) return;
+      const targetSize = SPECIMENS[activeSpecimenKey].size;
+
+      let start = currentReading;
+      let duration = 280;
+      let startTime = null;
+
+      function step(timestamp) {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        const ease = 1 - Math.pow(1 - progress, 3);
+        const val = start + (targetSize - start) * ease;
+        updateCaliperState(val, false);
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          triggerAudioClick(850, 0.04);
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function removeSpecimen() {
+      activeSpecimenKey = null;
+      document.getElementById('quickSpecimenSelect').value = 'none';
+      document.getElementById('btnQuickClamp').style.display = 'none';
+      document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
+      const container = document.getElementById('virtualSpecimenGroup');
+      if (container) container.innerHTML = '';
+    }
+
+    // --- QUIZ LOGIC ---
+    function generateRandomQuiz() {
+      const randMSR = Math.floor(Math.random() * 55) + 6;
+      const totalDivisions = Math.round(1 / currentLC);
+      const randVSR = Math.floor(Math.random() * totalDivisions);
+
+      quizTargetValue = randMSR + (randVSR * currentLC);
+      updateCaliperState(quizTargetValue, true);
+
+      document.getElementById('quizInputMSR').value = '';
+      document.getElementById('quizInputVSR').value = '';
+      document.getElementById('quizInputTotal').value = '';
+      const evalBox = document.getElementById('quizFeedbackBanner');
+      evalBox.style.display = 'none';
+      evalBox.className = 'quiz-feedback-banner';
+    }
+
+    function verifyQuizAnswer() {
+      const userMSR = parseInt(document.getElementById('quizInputMSR').value);
+      const userVSR = parseInt(document.getElementById('quizInputVSR').value);
+      const userTotal = parseFloat(document.getElementById('quizInputTotal').value);
+
+      const evalBox = document.getElementById('quizFeedbackBanner');
+      if (isNaN(userMSR) || isNaN(userVSR) || isNaN(userTotal)) {
+        evalBox.className = 'quiz-feedback-banner failure';
+        evalBox.innerHTML = `<strong>Incomplete Entry:</strong> Please provide values for MSR, VSR division, and the Total Calculated reading.`;
+        return;
+      }
+
+      quizTotal++;
+      const correctMSR = Math.floor(quizTargetValue);
+      const totalDivisions = Math.round(1 / currentLC);
+      let correctVSR = Math.round((quizTargetValue - correctMSR) / currentLC);
+      if (correctVSR >= totalDivisions) correctVSR = 0;
+      const correctTotal = correctMSR + (correctVSR * currentLC);
+
+      const msrMatch = (userMSR === correctMSR);
+      const vsrMatch = (userVSR === correctVSR);
+      const totalMatch = Math.abs(userTotal - correctTotal) < (currentLC / 2);
+
+      if (msrMatch && vsrMatch && totalMatch) {
+        quizScore++;
+        quizStreak++;
+        evalBox.className = 'quiz-feedback-banner success';
+        evalBox.innerHTML = `
+          <strong>🎉 Correct! Precise Metrology Calculation:</strong><br>
+          &bull; MSR: <strong>${correctMSR} mm</strong> | VSR: Division <strong>${correctVSR}</strong><br>
+          &bull; Total: ${correctMSR} + (${correctVSR} &times; ${currentLC}) = <strong>${correctTotal.toFixed(2)} mm</strong>
+        `;
+        triggerAudioClick(950, 0.08);
+      } else {
+        quizStreak = 0;
+        evalBox.className = 'quiz-feedback-banner failure';
+        let notes = [];
+        if (!msrMatch) notes.push(`MSR: The Vernier 0 index has passed mark <strong>${correctMSR} mm</strong> (you entered ${userMSR}).`);
+        if (!vsrMatch) notes.push(`VSR: The accurately aligned mark is division <strong>${correctVSR}</strong> (you entered ${userVSR}).`);
+        if (!totalMatch) notes.push(`Total should equal ${correctMSR} + (${correctVSR} &times; ${currentLC}) = <strong>${correctTotal.toFixed(2)} mm</strong>.`);
+
+        evalBox.innerHTML = `
+          <strong>Incorrect. Review the derivation:</strong><br>
+          ${notes.join('<br>')}
+        `;
+        triggerAudioClick(280, 0.1);
+      }
+
+      document.getElementById('quizScoreVal').textContent = quizScore;
+      document.getElementById('quizTotalVal').textContent = quizTotal;
+      document.getElementById('quizStreakVal').textContent = quizStreak;
+    }
+
+    // --- MODAL CONTROLS ---
+    function openTheoryModal() {
+      document.getElementById('theoryModal').classList.add('open');
+    }
+
+    function closeTheoryModal(e) {
+      if (e && e.target !== document.getElementById('theoryModal')) return;
+      document.getElementById('theoryModal').classList.remove('open');
+    }
+  </script>
+</body>
+</html>
