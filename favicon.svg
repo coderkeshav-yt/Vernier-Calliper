@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <defs>
+    <linearGradient id="favBeamGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <linearGradient id="favJawGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#cbd5e1"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#0f172a" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Background Badge -->
+  <rect width="64" height="64" rx="14" fill="#0f172a"/>
+  <!-- Caliper Main Beam -->
+  <rect x="8" y="24" width="48" height="12" rx="2" fill="url(#favBeamGrad)" filter="url(#glow)"/>
+  <!-- Fixed Left Upper & Lower Jaw -->
+  <path d="M 12,24 L 12,12 C 12,10 14,8 18,8 L 18,24 Z" fill="url(#favJawGrad)"/>
+  <path d="M 12,36 L 12,52 C 12,54 14,56 18,56 L 22,36 Z" fill="url(#favJawGrad)"/>
+  <!-- Movable Slider Upper & Lower Jaw -->
+  <path d="M 34,24 L 34,12 C 34,10 32,8 28,8 L 28,24 Z" fill="#93c5fd"/>
+  <path d="M 34,36 L 34,52 C 34,54 32,56 28,56 L 24,36 Z" fill="#93c5fd"/>
+  <!-- Slider Carriage Box -->
+  <rect x="30" y="20" width="14" height="20" rx="3" fill="#ffffff" stroke="#0284c7" stroke-width="1.5"/>
+  <!-- Graduation Ticks on Main Beam -->
+  <line x1="16" y1="28" x2="16" y2="32" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
+  <line x1="20" y1="29" x2="20" y2="31" stroke="#0f172a" stroke-width="1" stroke-linecap="round"/>
+  <line x1="24" y1="28" x2="24" y2="32" stroke="#0f172a" stroke-width="1.2" stroke-linecap="round"/>
+  <!-- Vernier Green Coincidence Pin -->
+  <circle cx="37" cy="30" r="2" fill="#10b981"/>
+</svg>
