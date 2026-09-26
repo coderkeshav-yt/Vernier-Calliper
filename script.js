@@ -23,7 +23,7 @@ const SPECIMENS = {
   mysterySample: { name: "Mystery Sample", type: "external", size: 19.35, shape: "mystery" },
   custom: { name: "Custom Specimen", type: "external", size: 25.00, shape: "custom" }
 };
-let activeSpecimenKey = null;
+let activeSpecimenKey = 'brassCylinder';
 
 // Quiz State
 let quizTargetValue = 0;
@@ -69,7 +69,8 @@ function toggleAudioSound() {
 window.addEventListener('DOMContentLoaded', () => {
   buildMainScaleTicks();
   buildVernierScaleTicks();
-  updateCaliperState(0);
+  selectSpecimen('brassCylinder');
+  updateCaliperState(34.60, false);
   setupDragEvents();
   setupKeyboardEvents();
   switchLabTab('free');
@@ -598,17 +599,71 @@ function onQuickSpecimenChange(key) {
   if (key === 'none') {
     removeSpecimen();
   } else if (key === 'custom') {
-    switchLabTab('measure');
     selectSpecimen('custom');
+    const lenInput = document.getElementById('specimenLengthInput');
+    if (lenInput) {
+      lenInput.focus();
+      lenInput.select();
+    }
   } else {
     selectSpecimen(key);
   }
 }
 
+function onSpecimenLengthChange(val) {
+  const num = parseFloat(val);
+  if (isNaN(num) || num <= 0 || num > 145) return;
+
+  if (!activeSpecimenKey || activeSpecimenKey === 'none') {
+    activeSpecimenKey = 'custom';
+    const sel = document.getElementById('quickSpecimenSelect');
+    if (sel) sel.value = 'custom';
+  }
+
+  if (SPECIMENS[activeSpecimenKey]) {
+    SPECIMENS[activeSpecimenKey].size = num;
+
+    // Update catalog card description if present
+    const descEl = document.getElementById(`desc_${activeSpecimenKey}`);
+    if (descEl) {
+      if (SPECIMENS[activeSpecimenKey].type === 'internal') {
+        descEl.textContent = `Inner Size: ${num.toFixed(2)} mm (Inner Jaws)`;
+      } else if (SPECIMENS[activeSpecimenKey].type === 'depth') {
+        descEl.textContent = `Depth: ${num.toFixed(2)} mm (Depth Rod)`;
+      } else {
+        descEl.textContent = `Size: ${num.toFixed(2)} mm (Outer Jaws)`;
+      }
+    }
+
+    // Synchronize custom input if active specimen is custom
+    const customInput = document.getElementById('customDiameterInput');
+    if (customInput && activeSpecimenKey === 'custom') {
+      customInput.value = num.toFixed(2);
+    }
+
+    // Synchronize toolbar length input
+    const lenInput = document.getElementById('specimenLengthInput');
+    if (lenInput) lenInput.value = num.toFixed(2);
+
+    renderSpecimenSVG(activeSpecimenKey);
+    autoClampToSpecimen();
+  }
+}
+
 function selectSpecimen(key) {
   activeSpecimenKey = key;
-  document.getElementById('quickSpecimenSelect').value = key;
-  document.getElementById('btnQuickClamp').style.display = 'inline-flex';
+  const sel = document.getElementById('quickSpecimenSelect');
+  if (sel) sel.value = key;
+  
+  const clampBtn = document.getElementById('btnQuickClamp');
+  if (clampBtn) clampBtn.style.display = 'inline-flex';
+
+  const lengthEditor = document.getElementById('specimenLengthEditor');
+  const lengthInput = document.getElementById('specimenLengthInput');
+  if (lengthEditor && lengthInput && SPECIMENS[key]) {
+    lengthEditor.style.display = 'inline-flex';
+    lengthInput.value = SPECIMENS[key].size.toFixed(2);
+  }
 
   document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
   const card = document.getElementById(`card_${key}`);
@@ -616,10 +671,9 @@ function selectSpecimen(key) {
 
   renderSpecimenSVG(key);
 
-  // Auto-open jaws if smaller than specimen
   const spec = SPECIMENS[key];
-  if (spec && currentReading < spec.size) {
-    updateCaliperState(spec.size + 4, false);
+  if (spec) {
+    autoClampToSpecimen();
   }
 }
 
@@ -633,6 +687,7 @@ function applyCustomSpecimenSize(val) {
 
 function renderSpecimenSVG(key) {
   const container = document.getElementById('virtualSpecimenGroup');
+  if (!container) return;
   container.innerHTML = '';
   if (!key || !SPECIMENS[key]) return;
 
@@ -652,7 +707,7 @@ function renderSpecimenSVG(key) {
       circle.setAttribute("filter", "url(#caliperDropShadow)");
       container.appendChild(circle);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'cylinder' || spec.shape === 'mystery' || spec.shape === 'custom') {
       const rect = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       rect.setAttribute("x", ORIGIN_X);
@@ -700,7 +755,7 @@ function renderSpecimenSVG(key) {
       hole.setAttribute("stroke-width", "1.5");
       container.appendChild(hole);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
     } else if (spec.shape === 'ring') {
       const outer = document.createElementNS("http://www.w3.org/2000/svg", "rect");
       outer.setAttribute("x", ORIGIN_X);
@@ -723,7 +778,7 @@ function renderSpecimenSVG(key) {
       inner.setAttribute("stroke-width", "1.2");
       container.appendChild(inner);
 
-      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `OD: ${spec.size.toFixed(2)} mm`);
+      renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, 215, `${spec.size.toFixed(2)} mm`);
     }
   } else if (spec.type === 'internal') {
     const tube = document.createElementNS("http://www.w3.org/2000/svg", "rect");
@@ -737,7 +792,7 @@ function renderSpecimenSVG(key) {
     tube.setAttribute("rx", "3");
     container.appendChild(tube);
 
-    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -10, `ID: ${spec.size.toFixed(2)} mm`);
+    renderDimensionAnnotation(container, ORIGIN_X, ORIGIN_X + widthUnits, -10, `${spec.size.toFixed(2)} mm (Inner)`);
   } else if (spec.type === 'depth') {
     const block = document.createElementNS("http://www.w3.org/2000/svg", "rect");
     block.setAttribute("x", 1380);
@@ -810,8 +865,12 @@ function autoClampToSpecimen() {
 
 function removeSpecimen() {
   activeSpecimenKey = null;
-  document.getElementById('quickSpecimenSelect').value = 'none';
-  document.getElementById('btnQuickClamp').style.display = 'none';
+  const sel = document.getElementById('quickSpecimenSelect');
+  if (sel) sel.value = 'none';
+  const clampBtn = document.getElementById('btnQuickClamp');
+  if (clampBtn) clampBtn.style.display = 'none';
+  const lengthEditor = document.getElementById('specimenLengthEditor');
+  if (lengthEditor) lengthEditor.style.display = 'none';
   document.querySelectorAll('.specimen-card').forEach(c => c.classList.remove('selected'));
   const container = document.getElementById('virtualSpecimenGroup');
   if (container) container.innerHTML = '';

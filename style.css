@@ -228,6 +228,66 @@ main {
   cursor: pointer;
 }
 
+/* Specimen Length Quick Input Badge */
+.specimen-length-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 7px;
+  padding: 3px 8px;
+  transition: all 0.2s ease;
+}
+
+.specimen-length-badge .length-label {
+  font-size: 0.725rem;
+  font-weight: 700;
+  color: #0369a1;
+}
+
+.specimen-length-badge input[type="number"] {
+  width: 65px;
+  padding: 2px 6px;
+  border: 1px solid #7dd3fc;
+  border-radius: 5px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #0c4a6e;
+  background: #ffffff;
+  text-align: right;
+}
+
+.specimen-length-badge input[type="number"]:focus {
+  outline: none;
+  border-color: #0284c7;
+  box-shadow: 0 0 0 2px rgba(2, 132, 199, 0.25);
+}
+
+.specimen-length-badge .length-unit {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #0284c7;
+  font-family: var(--font-mono);
+}
+
+.btn-mini-apply {
+  background: #0284c7;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  padding: 2px 7px;
+  font-size: 0.72rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.btn-mini-apply:hover {
+  background: #0369a1;
+}
+
 .segmented-switch {
   display: inline-flex;
   background: #e2e8f0;

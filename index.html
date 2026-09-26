@@ -65,24 +65,33 @@
       <!-- Top Control Bar with Quick Specimen Selector -->
       <div class="workbench-top-bar">
         
-        <!-- Specimen Quick Selector -->
+        <!-- Specimen Quick Selector with Default Brass Cylinder & Length Input -->
         <div class="control-item-group">
           <span class="group-label">Specimen:</span>
           <div class="specimen-select-wrapper">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="4"/></svg>
             <select id="quickSpecimenSelect" onchange="onQuickSpecimenChange(this.value)">
               <option value="none">-- None (Free Drag) --</option>
-              <option value="steelSphere">Steel Sphere (Ø 22.45 mm)</option>
-              <option value="brassCylinder">Brass Cylinder (Ø 34.60 mm)</option>
-              <option value="hexNut">Steel Hex Nut (Ø 18.20 mm)</option>
-              <option value="bearingRing">Bearing Ring (Ø 26.80 mm)</option>
-              <option value="glassTube">Glass Tube ID (Ø 15.35 mm)</option>
+              <option value="brassCylinder" selected>Brass Cylinder (34.60 mm)</option>
+              <option value="steelSphere">Steel Sphere (22.45 mm)</option>
+              <option value="hexNut">Steel Hex Nut (18.20 mm)</option>
+              <option value="bearingRing">Bearing Ring (26.80 mm)</option>
+              <option value="glassTube">Glass Tube ID (15.35 mm)</option>
               <option value="stepWell">Step Well Depth (28.50 mm)</option>
               <option value="mysterySample">Mystery Sample (?)</option>
               <option value="custom">Custom Size...</option>
             </select>
           </div>
-          <button class="btn-pill" id="btnQuickClamp" onclick="autoClampToSpecimen()" style="display:none; color:var(--accent-blue); font-weight:700;">
+
+          <!-- Quick Specimen Length Input Badge -->
+          <div class="specimen-length-badge" id="specimenLengthEditor">
+            <span class="length-label">Length/Size:</span>
+            <input type="number" id="specimenLengthInput" min="1" max="140" step="0.01" value="34.60" onchange="onSpecimenLengthChange(this.value)" title="Change specimen dimension">
+            <span class="length-unit">mm</span>
+            <button class="btn-mini-apply" onclick="onSpecimenLengthChange(document.getElementById('specimenLengthInput').value)" title="Apply dimension">Set</button>
+          </div>
+
+          <button class="btn-pill" id="btnQuickClamp" onclick="autoClampToSpecimen()" style="color:var(--accent-blue); font-weight:700;">
             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M4 14h6m-6 4h6m4-14 4 4m0 0 4-4m-4 4v12"/></svg>
             Auto-Clamp Jaws
           </button>
@@ -374,13 +383,13 @@
 
         <div class="slider-range-container">
           <span style="font-size:0.725rem;font-family:var(--font-mono);color:var(--text-muted);">0 mm</span>
-          <input type="range" id="jawRangeSlider" min="0" max="150" step="0.01" value="0" oninput="onRangeSliderInput(this.value)">
+          <input type="range" id="jawRangeSlider" min="0" max="150" step="0.01" value="34.60" oninput="onRangeSliderInput(this.value)">
           <span style="font-size:0.725rem;font-family:var(--font-mono);color:var(--text-muted);">150 mm</span>
         </div>
 
         <div class="direct-input-container">
           <label for="directReadingInput">Set Jaw:</label>
-          <input type="number" id="directReadingInput" min="0" max="150" step="0.01" value="0.00" onchange="onDirectInputChange(this.value)">
+          <input type="number" id="directReadingInput" min="0" max="150" step="0.01" value="34.60" onchange="onDirectInputChange(this.value)">
           <span>mm</span>
         </div>
       </div>
@@ -506,9 +515,17 @@
         </div>
       </div>
 
-      <!-- Specimen Cards Grid -->
+      <!-- Specimen Cards Grid (No Ø symbol) -->
       <div class="specimens-grid">
-        <div class="specimen-card selected" onclick="selectSpecimen('steelSphere')" id="card_steelSphere">
+        <div class="specimen-card selected" onclick="selectSpecimen('brassCylinder')" id="card_brassCylinder">
+          <svg class="specimen-icon-box" viewBox="0 0 50 50">
+            <rect x="12" y="8" width="26" height="34" rx="2" fill="url(#knurledBrassGrad)"/>
+          </svg>
+          <div class="specimen-card-title">Brass Cylinder</div>
+          <div class="specimen-card-desc" id="desc_brassCylinder">Size: 34.60 mm (Outer Jaws)</div>
+        </div>
+
+        <div class="specimen-card" onclick="selectSpecimen('steelSphere')" id="card_steelSphere">
           <svg class="specimen-icon-box" viewBox="0 0 50 50">
             <defs>
               <radialGradient id="ballShadeGrad" cx="35%" cy="35%" r="65%">
@@ -520,15 +537,7 @@
             <circle cx="25" cy="25" r="18" fill="url(#ballShadeGrad)"/>
           </svg>
           <div class="specimen-card-title">Steel Sphere</div>
-          <div class="specimen-card-desc">OD: 22.45 mm (Outer Jaws)</div>
-        </div>
-
-        <div class="specimen-card" onclick="selectSpecimen('brassCylinder')" id="card_brassCylinder">
-          <svg class="specimen-icon-box" viewBox="0 0 50 50">
-            <rect x="12" y="8" width="26" height="34" rx="2" fill="url(#knurledBrassGrad)"/>
-          </svg>
-          <div class="specimen-card-title">Brass Cylinder</div>
-          <div class="specimen-card-desc">OD: 34.60 mm (Outer Jaws)</div>
+          <div class="specimen-card-desc" id="desc_steelSphere">Size: 22.45 mm (Outer Jaws)</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('hexNut')" id="card_hexNut">
@@ -537,7 +546,7 @@
             <circle cx="25" cy="25" r="8" fill="#f8fafc" stroke="#334155" stroke-width="1.2"/>
           </svg>
           <div class="specimen-card-title">Steel Hex Nut</div>
-          <div class="specimen-card-desc">OD: 18.20 mm (Outer Jaws)</div>
+          <div class="specimen-card-desc" id="desc_hexNut">Size: 18.20 mm (Outer Jaws)</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('bearingRing')" id="card_bearingRing">
@@ -546,7 +555,7 @@
             <circle cx="25" cy="25" r="10" fill="#f8fafc" stroke="#334155" stroke-width="1.5"/>
           </svg>
           <div class="specimen-card-title">Bearing Ring</div>
-          <div class="specimen-card-desc">OD: 26.80 mm (Outer Jaws)</div>
+          <div class="specimen-card-desc" id="desc_bearingRing">Size: 26.80 mm (Outer Jaws)</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('glassTube')" id="card_glassTube">
@@ -554,7 +563,7 @@
             <path d="M 18,6 L 32,6 L 32,36 C 32,42 29,45 25,45 C 21,45 18,42 18,36 Z" fill="#e0f2fe" stroke="#0284c7" stroke-width="1.5"/>
           </svg>
           <div class="specimen-card-title">Glass Beaker/Tube</div>
-          <div class="specimen-card-desc">ID: 15.35 mm (Inner Jaws)</div>
+          <div class="specimen-card-desc" id="desc_glassTube">Inner Size: 15.35 mm (Inner Jaws)</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('stepWell')" id="card_stepWell">
@@ -562,7 +571,7 @@
             <path d="M 8,40 L 8,16 L 22,16 L 22,28 L 40,28 L 40,40 Z" fill="#cbd5e1" stroke="#475569" stroke-width="1.2"/>
           </svg>
           <div class="specimen-card-title">Stepped Well</div>
-          <div class="specimen-card-desc">Depth: 28.50 mm (Depth Rod)</div>
+          <div class="specimen-card-desc" id="desc_stepWell">Depth: 28.50 mm (Depth Rod)</div>
         </div>
 
         <div class="specimen-card" onclick="selectSpecimen('mysterySample')" id="card_mysterySample">
@@ -577,10 +586,10 @@
 
       <!-- Custom Size Bar -->
       <div class="custom-specimen-bar">
-        <span><strong>Custom Specimen:</strong> Set any custom diameter to test:</span>
+        <span><strong>Set Custom Specimen Length:</strong></span>
         <input type="number" id="customDiameterInput" min="1" max="140" step="0.01" value="25.00" onchange="applyCustomSpecimenSize(this.value)">
         <span>mm</span>
-        <button class="btn-pill" onclick="applyCustomSpecimenSize(document.getElementById('customDiameterInput').value)">Apply Custom Specimen</button>
+        <button class="btn-pill" onclick="applyCustomSpecimenSize(document.getElementById('customDiameterInput').value)">Apply Custom Size</button>
       </div>
     </div>
 
