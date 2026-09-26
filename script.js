@@ -220,6 +220,17 @@ function updateCaliperState(targetMM, sound = false) {
   const translateX = currentReading * SCALE_FACTOR;
   sliderGroup.setAttribute('transform', `translate(${translateX}, 0)`);
 
+  // Update Depth Rod width to always span from carriage to beam end
+  const depthRod = document.getElementById('depthRodElement');
+  if (depthRod) {
+    // depthRod is inside sliderGroup, its x=500 in local coords; we want to cover back to beam origin
+    // Width in slider local space: extends from x=500 to cover to x=(1380 - translateX)
+    depthRod.setAttribute('width', Math.max(0, 1380 - 500 - translateX));
+  }
+
+  // Update floating part label positions to track movable components
+  updatePartLabelPositions(translateX);
+
   // Calculations & DOM updates
   computeMetrologyReadouts();
   refreshLoupeMagnifier();
@@ -555,12 +566,49 @@ function toggleCoincidenceRay() {
 
 function togglePartLabels() {
   isLabelsVisible = !isLabelsVisible;
-  const fixedGroup = document.getElementById('fixedPartLabelsGroup');
-  const sliderGroup = document.getElementById('sliderPartLabelsGroup');
+  const group = document.getElementById('partLabelsGroup');
   const btn = document.getElementById('btnToggleLabels');
-  if (fixedGroup) fixedGroup.style.display = isLabelsVisible ? 'block' : 'none';
-  if (sliderGroup) sliderGroup.style.display = isLabelsVisible ? 'block' : 'none';
+  if (group) group.style.display = isLabelsVisible ? 'block' : 'none';
   btn.classList.toggle('active', isLabelsVisible);
+}
+
+// Dynamically reposition movable part labels to track the sliding carriage
+function updatePartLabelPositions(translateX) {
+  if (!isLabelsVisible) return;
+
+  // All positions are in SVG absolute coordinates (viewBox space)
+  // translateX = currentReading * SCALE_FACTOR
+
+  // Movable jaw face is at SVG x = ORIGIN_X + translateX
+  const jawFaceX = ORIGIN_X + translateX;
+
+  // Movable Internal Jaw: point to right side of moving jaw spine
+  setLabelPos('lbl_movInternal', jawFaceX + 25, -35);
+
+  // Movable External Jaw: same x, lower y
+  setLabelPos('lbl_movExternal', jawFaceX + 35, 210);
+
+  // Locking Screw: at translate(310,2) inside slider = SVG x = jawFaceX + 310, y = 2
+  setLabelPos('lbl_lockScrew', jawFaceX + 310, 2);
+
+  // Vernier Scale: center of vernier plate at translateX + 310, y = 100
+  setLabelPos('lbl_vernierScale', jawFaceX + 180, 100);
+
+  // Depth Rod Tip: always at SVG x = ORIGIN_X + 1380 (beam end), y = 68
+  // But depth rod tip x1=1380 in sliderGroup local = 1380 + translateX in SVG abs
+  // However the actual blade tip always stays at global x=1380 (end of beam).
+  // It protrudes from slider end; in the current design the tip marker is at local x=1380
+  // so in SVG absolute: ORIGIN_X + translateX + 1380 — that's off screen.
+  // Actually depthRodTip is at x1=1380 local in slider, but beam end is fixed at x=1380 SVG.
+  // The rod goes from the slider at x=500 local backward; its width is managed. Tip is at 1380 SVG.
+  setLabelPos('lbl_depthRod', 1380, 68);
+}
+
+function setLabelPos(id, x, y) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.setAttribute('transform', `translate(${x}, ${y})`);
+  }
 }
 
 // --- MODE SWITCHING ---
